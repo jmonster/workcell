@@ -1,0 +1,43 @@
+# Workcell
+
+Workcell gives cooperative coding agents a host-local FIFO queue for shared Macs, devices, GPUs, rigs, and license seats. Commands using different resource keys run concurrently.
+
+## Install
+
+```sh
+curl -fsSL https://workcell-137.pages.dev/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+## Commands
+
+```text
+workcell run <resource> [--wait] [--session <id>] [--json] -- <command...>
+workcell status <resource> [--json]
+```
+
+Use one canonical resource key for each shared capability. Different strings are different queues. Set `--session` or `WORKCELL_SESSION` to a stable agent-task identifier.
+
+## Agent contract
+
+Use `--json`.
+
+- A completed run returns `decision: "completed"`, the reservation and session, the wrapped command's exit code, timings, and `log_path`.
+- A non-waiting busy run exits `75`. The protected command has not run.
+- A busy result includes the current `owner` when available, `queue_ahead`, and `next_action.wait_argv`.
+- Execute `next_action.wait_argv` unchanged from the same working directory and environment to join the FIFO queue, or continue unrelated work.
+- `duration_estimate` is optional historical context, not a queue-wait prediction.
+- `workcell status <resource> --json` reports `owned` or `free`.
+- JSON mode writes combined command output to `log_path` and emits one result on stdout. Read the log only when the command fails, stalls, or needs live inspection.
+- Human mode streams command output. Wrapped exit codes are preserved in both modes.
+
+All callers for one resource must use the same host, state root, and resource key. State defaults to `~/.local/state/workcell`; override it with `WORKCELL_STATE_DIR`.
+
+## Agent policy
+
+1. Wrap the full command that mutates or validates the shared capability.
+2. If busy, use `next_action.wait_argv` when waiting is appropriate; otherwise continue unrelated work.
+3. Do not bypass Workcell or terminate the owner.
+4. Report the resource, session, reservation ID, exit code, and log path.
+
+Workcell is cooperative host-local coordination. It does not provide preemption or distributed locking.

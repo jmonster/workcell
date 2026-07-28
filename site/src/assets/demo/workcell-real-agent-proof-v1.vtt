@@ -1,0 +1,28 @@
+WEBVTT
+
+00:00.000 --> 00:04.000
+Three real Luna agents validate wait-regression and two baselines.
+
+00:04.000 --> 00:12.000
+Without Workcell, all three deploy into one shared binary slot.
+
+00:12.000 --> 00:20.000
+Two agents test somebody else’s binary and report false success.
+
+00:20.000 --> 00:28.000
+The control ends green but wrong: two false greens; only two candidates correct.
+
+00:28.000 --> 00:40.000
+The identical workload runs again. This time, Workcell owns deploy and test.
+
+00:40.000 --> 00:48.000
+One agent owns the slot. The others hold their places.
+
+00:48.000 --> 01:00.000
+wait-regression fails against its own binary, releases the lease, and is fixed off-lease.
+
+01:00.000 --> 01:20.000
+The repaired wait-regression candidate queues again and passes its own binary.
+
+01:20.000 --> 01:27.000
+Final: false greens 2 to 0; overlap 3 to 1; correct candidates 2/3 to 3/3.

@@ -1,0 +1,508 @@
+---
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+const instructionsId = `${id}-instructions`;
+const summaryId = `${id}-summary`;
+---
+
+<workcell-live-queue>
+  <figure class="hero__demo" id="watch" data-live-demo>
+    <div class="live-queue" data-live-queue>
+      <div class="live-queue__header">
+        <span>Live resource queue</span>
+        <div class="live-queue__actions">
+          <button type="button" data-live-toggle aria-controls={summaryId} aria-describedby={instructionsId} disabled>Pause</button>
+          <button type="button" data-live-restart aria-controls={summaryId} aria-describedby={instructionsId} disabled>Restart</button>
+        </div>
+      </div>
+      <div class="live-queue__progress" aria-hidden="true"><span data-live-progress></span></div>
+
+      <div class="live-lanes" aria-hidden="true">
+        <article class="live-lane live-lane--primary">
+          <div class="live-lane__resource">
+            <span>Shared resource</span>
+            <code>macos-xcode</code>
+            <strong data-main-status>RUNNING</strong>
+          </div>
+          <div class="live-lane__rows">
+            <p class="live-row live-row--running" data-main-a-row><span data-main-a-status>RUNNING</span><strong>ace/audio-fix</strong></p>
+            <p class="live-row" data-main-b-row><span data-main-b-status>WAITING #1</span><strong>ace/player-redesign</strong></p>
+            <p class="live-row" data-main-c-row><span data-main-c-status>WAITING #2</span><strong>ace/subtitle-fix</strong></p>
+          </div>
+          <div class="live-lane__footer">
+            <span>Up next</span>
+            <strong data-next-owner>ace/player-redesign</strong>
+          </div>
+        </article>
+
+        <article class="live-lane live-lane--secondary">
+          <div class="live-lane__resource">
+            <span>Different resource</span>
+            <code>gpu:a100-node-01</code>
+            <strong>RUNNING</strong>
+          </div>
+          <div class="live-lane__rows">
+            <p class="live-row live-row--running"><span>RUNNING</span><strong>ace/model-eval</strong></p>
+          </div>
+          <div class="live-lane__footer">
+            <span>Log</span>
+            <code>~/.local/state/workcell/logs/01K##...</code>
+          </div>
+        </article>
+      </div>
+
+      <p class="sr-only" id={instructionsId}>Pause the queue example to read a state, or restart it and announce the release and automatic handoff.</p>
+      <p class="sr-only" id={summaryId} data-live-summary aria-live="polite" aria-atomic="true">Agent A is running. Agents B and C are waiting in FIFO order. Agent D is running on a different resource.</p>
+    </div>
+
+    <figcaption class="live-caption" data-live-caption>
+      <p>Three agents share one Mac in FIFO order. A GPU job runs at the same time.</p>
+    </figcaption>
+  </figure>
+</workcell-live-queue>
+
+<script>
+  import { observeViewportActivity } from '../scripts/viewport-activity';
+  import { createTimerGroup } from '../scripts/timeline';
+
+  class WorkcellLiveQueue extends HTMLElement {
+    cleanup?: () => void;
+
+    connectedCallback() {
+      if (this.cleanup) return;
+      const demo = this.querySelector<HTMLElement>('[data-live-queue]');
+      if (!demo) return;
+
+      const toggle = demo.querySelector<HTMLButtonElement>('[data-live-toggle]');
+      const restart = demo.querySelector<HTMLButtonElement>('[data-live-restart]');
+      const progress = demo.querySelector<HTMLElement>('[data-live-progress]');
+      const summary = demo.querySelector<HTMLElement>('[data-live-summary]');
+      const status = demo.querySelector<HTMLElement>('[data-main-status]');
+      const agentARow = demo.querySelector<HTMLElement>('[data-main-a-row]');
+      const agentAStatus = demo.querySelector<HTMLElement>('[data-main-a-status]');
+      const agentBRow = demo.querySelector<HTMLElement>('[data-main-b-row]');
+      const agentBStatus = demo.querySelector<HTMLElement>('[data-main-b-status]');
+      const agentCRow = demo.querySelector<HTMLElement>('[data-main-c-row]');
+      const agentCStatus = demo.querySelector<HTMLElement>('[data-main-c-status]');
+      const nextOwner = demo.querySelector<HTMLElement>('[data-next-owner]');
+      const timers = createTimerGroup();
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let active = false;
+      let announce = false;
+      let pausedByUser = false;
+      let cycleStartedAt = 0;
+      let elapsedAtResume = 0;
+
+      const stepDuration = 1800;
+      const bRunsAt = stepDuration;
+      const cRunsAt = stepDuration * 2;
+      const completeAt = stepDuration * 3;
+
+      const setInitialState = () => {
+        if (status) status.textContent = 'RUNNING 1 / 3';
+        if (agentAStatus) agentAStatus.textContent = 'RUNNING';
+        if (agentBStatus) agentBStatus.textContent = 'WAITING #1';
+        if (agentCStatus) agentCStatus.textContent = 'WAITING #2';
+        if (nextOwner) nextOwner.textContent = 'ace/player-redesign';
+        agentARow?.classList.add('live-row--running');
+        agentARow?.classList.remove('live-row--done');
+        agentBRow?.classList.remove('live-row--running', 'live-row--done');
+        agentCRow?.classList.remove('live-row--running', 'live-row--done');
+        if (summary) summary.textContent = 'Agent A is running. Agents B and C are waiting in FIFO order. Agent D is running on a different resource.';
+      };
+
+      const setBRunningState = () => {
+        if (status) status.textContent = 'RUNNING 2 / 3';
+        if (agentAStatus) agentAStatus.textContent = 'DONE';
+        if (agentBStatus) agentBStatus.textContent = 'RUNNING';
+        if (agentCStatus) agentCStatus.textContent = 'WAITING #1';
+        if (nextOwner) nextOwner.textContent = 'ace/subtitle-fix';
+        agentARow?.classList.remove('live-row--running');
+        agentARow?.classList.add('live-row--done');
+        agentBRow?.classList.remove('live-row--done');
+        agentBRow?.classList.add('live-row--running');
+        agentCRow?.classList.remove('live-row--running', 'live-row--done');
+      };
+
+      const restartProgress = () => {
+        if (!progress) return;
+        progress.classList.remove('is-running');
+        progress.style.animationPlayState = 'running';
+        void progress.offsetWidth;
+        progress.classList.add('is-running');
+      };
+
+      const setBRunning = () => {
+        setBRunningState();
+        if (announce && summary) summary.textContent = 'Agent B moved from waiting number one to running. Agent C is now waiting number one.';
+      };
+
+      const setCRunning = () => {
+        if (status) status.textContent = 'RUNNING 3 / 3';
+        if (agentAStatus) agentAStatus.textContent = 'DONE';
+        if (agentBStatus) agentBStatus.textContent = 'DONE';
+        if (agentCStatus) agentCStatus.textContent = 'RUNNING';
+        if (nextOwner) nextOwner.textContent = 'NONE';
+        agentARow?.classList.remove('live-row--running');
+        agentARow?.classList.add('live-row--done');
+        agentBRow?.classList.remove('live-row--running');
+        agentBRow?.classList.add('live-row--done');
+        agentCRow?.classList.remove('live-row--done');
+        agentCRow?.classList.add('live-row--running');
+        if (announce && summary) summary.textContent = 'Agent B finishes. Agent C moves from waiting number one to running.';
+      };
+
+      const setComplete = () => {
+        if (status) status.textContent = 'COMPLETE';
+        if (agentAStatus) agentAStatus.textContent = 'DONE';
+        if (agentBStatus) agentBStatus.textContent = 'DONE';
+        if (agentCStatus) agentCStatus.textContent = 'DONE';
+        if (nextOwner) nextOwner.textContent = 'QUEUE COMPLETE';
+        agentARow?.classList.remove('live-row--running');
+        agentARow?.classList.add('live-row--done');
+        agentBRow?.classList.remove('live-row--running');
+        agentBRow?.classList.add('live-row--done');
+        agentCRow?.classList.remove('live-row--running');
+        agentCRow?.classList.add('live-row--done');
+        if (announce && summary) summary.textContent = 'Agent C finishes. All three same-resource jobs completed in order.';
+      };
+
+      const scheduleRemaining = (elapsed: number) => {
+        if (elapsed < bRunsAt) timers.schedule(setBRunning, bRunsAt - elapsed);
+        if (elapsed < cRunsAt) timers.schedule(setCRunning, cRunsAt - elapsed);
+        if (elapsed < completeAt) timers.schedule(setComplete, completeAt - elapsed);
+      };
+
+      const run = ({ announceSteps = false, restarted = false } = {}) => {
+        timers.clear();
+        announce = announceSteps;
+        pausedByUser = false;
+        elapsedAtResume = 0;
+        cycleStartedAt = performance.now();
+        if (toggle) toggle.textContent = 'Pause';
+        setInitialState();
+        if (restart) restart.textContent = 'Restart';
+        if (!active) return;
+
+        if (restarted && reducedMotion.matches) {
+          setComplete();
+          if (summary) summary.textContent = 'All three same-resource jobs completed in order.';
+          return;
+        }
+
+        restartProgress();
+        scheduleRemaining(0);
+      };
+
+      const handleToggle = () => {
+        if (!active || reducedMotion.matches) return;
+        if (pausedByUser) {
+          pausedByUser = false;
+          cycleStartedAt = performance.now();
+          if (progress) progress.style.animationPlayState = 'running';
+          if (toggle) toggle.textContent = 'Pause';
+          scheduleRemaining(elapsedAtResume);
+          return;
+        }
+
+        elapsedAtResume += performance.now() - cycleStartedAt;
+        pausedByUser = true;
+        timers.clear();
+        if (progress) progress.style.animationPlayState = 'paused';
+        if (toggle) toggle.textContent = 'Resume';
+      };
+
+      const handleRestart = () => {
+        active = true;
+        run({ announceSteps: true, restarted: true });
+      };
+
+      const handleProgressEnd = () => {
+        if (!active || pausedByUser) return;
+        announce = false;
+        run();
+      };
+
+      toggle?.addEventListener('click', handleToggle);
+      restart?.addEventListener('click', handleRestart);
+      progress?.addEventListener('animationend', handleProgressEnd);
+      if (toggle) toggle.disabled = true;
+      if (restart) restart.disabled = false;
+
+      const stopObserving = observeViewportActivity(demo, (nextActive) => {
+        active = nextActive;
+        if (toggle) toggle.disabled = !active || reducedMotion.matches;
+        if (active) run();
+        else {
+          timers.clear();
+          progress?.classList.remove('is-running');
+          if (progress) progress.style.animationPlayState = 'running';
+          pausedByUser = false;
+          if (toggle) toggle.textContent = 'Pause';
+        }
+      });
+
+      this.cleanup = () => {
+        timers.clear();
+        stopObserving();
+        toggle?.removeEventListener('click', handleToggle);
+        restart?.removeEventListener('click', handleRestart);
+        progress?.removeEventListener('animationend', handleProgressEnd);
+        if (toggle) toggle.disabled = true;
+        if (restart) restart.disabled = true;
+      };
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.();
+      this.cleanup = undefined;
+    }
+  }
+
+  if (!customElements.get('workcell-live-queue')) customElements.define('workcell-live-queue', WorkcellLiveQueue);
+</script>
+
+<style>
+  workcell-live-queue {
+    display: block;
+  }
+
+  .hero__demo {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--paper);
+    box-shadow: var(--shadow-md);
+  }
+
+  .live-queue {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 18% 0%, var(--demo-wash-a), transparent 42%),
+      radial-gradient(circle at 95% 90%, var(--demo-wash-b), transparent 46%),
+      var(--demo-bg);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .live-queue__header,
+  .live-lane__resource,
+  .live-row,
+  .live-lane__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .live-queue__header {
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--soft);
+    background: var(--demo-header-bg);
+    text-transform: uppercase;
+  }
+
+  .live-queue__actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .live-queue__header button {
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 1px solid var(--button-border);
+    border-radius: 999px;
+    color: var(--muted);
+    background: var(--button-bg);
+    box-shadow: var(--shadow-sm);
+    font: inherit;
+    text-transform: none;
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+
+  .live-queue__header button:hover:not(:disabled) {
+    color: var(--text);
+    background: var(--button-hover-bg);
+  }
+
+  .live-queue__header button:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  .live-queue__progress {
+    height: 3px;
+    overflow: hidden;
+    background: var(--progress-bg);
+  }
+
+  .live-queue__progress span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--lavender);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .live-queue__progress span.is-running {
+    animation: live-queue-progress 5.4s linear forwards;
+  }
+
+  @keyframes live-queue-progress {
+    to { transform: scaleX(1); }
+  }
+
+  .live-lanes {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 16px;
+    min-height: 360px;
+    padding: 16px;
+  }
+
+  .live-lane {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(20px, 3vw, 32px);
+    border: 1px solid var(--demo-border);
+    border-radius: 12px;
+    background: var(--demo-panel-bg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .live-lane__resource {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    color: var(--soft);
+  }
+
+  .live-lane__resource span {
+    grid-column: 1 / -1;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .live-lane__resource code,
+  .live-lane__footer code {
+    overflow-wrap: anywhere;
+    color: var(--text-strong);
+    font: inherit;
+  }
+
+  .live-lane__resource strong,
+  .live-row--running strong {
+    color: var(--demo-running);
+  }
+
+  .live-lane__resource strong {
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--demo-running-bg);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .live-row--done span {
+    color: var(--demo-running);
+  }
+
+  .live-row--done strong {
+    color: var(--demo-done);
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+
+  .live-lane__rows {
+    margin-top: 24px;
+    border-block: 1px solid var(--border);
+  }
+
+  .live-row {
+    align-items: center;
+    margin: 0;
+    padding: 16px 0;
+  }
+
+  .live-row + .live-row {
+    border-top: 1px solid var(--border);
+  }
+
+  .live-row span,
+  .live-lane__footer span {
+    color: var(--soft);
+  }
+
+  .live-row strong,
+  .live-lane__footer strong {
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
+
+  .live-lane__footer {
+    align-items: flex-end;
+    margin-top: auto;
+    padding-top: 24px;
+  }
+
+  .live-caption {
+    margin: 0;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--paper);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .live-caption p {
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .live-queue__header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .live-queue__actions {
+      width: 100%;
+    }
+
+    .live-queue__actions button {
+      flex: 1;
+    }
+
+    .live-lanes {
+      grid-template-columns: 1fr;
+      min-height: 0;
+      padding: 12px;
+    }
+
+    .live-lane {
+      min-height: 270px;
+    }
+
+    .live-caption {
+      font-size: 13px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-queue__progress span.is-running {
+      animation: none;
+      transform: scaleX(1);
+    }
+  }
+</style>
