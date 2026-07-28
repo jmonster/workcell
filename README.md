@@ -1,11 +1,29 @@
 # Workcell
 
-Workcell gives cooperative processes a host-local FIFO lock for shared Macs, devices, GPUs, rigs, and license seats.
+Workcell is a host-local FIFO queue for Macs, phones, GPUs, rigs, and license seats shared by coding agents.
+
+![Animated Workcell real-agent proof comparing uncoordinated shared-hardware testing with FIFO coordination](site/src/assets/demo/workcell-real-agent-proof-v1.gif)
+
+## Install and use
 
 ```bash
 curl -fsSL https://workcell-137.pages.dev/install.sh | sh
 
 workcell run macos-xcode --wait -- xcodebuild test
+```
+
+Or tell your agent:
+
+```text
+install https://workcell-137.pages.dev/llms.txt
+```
+
+## Try it
+
+Compare the same three-agent validation with and without Workcell:
+
+```bash
+curl -fsSL https://workcell-137.pages.dev/demo.sh | sh
 ```
 
 ## Commands
@@ -15,17 +33,14 @@ workcell run <resource> [--wait] [--session <id>] [--json] -- <command...>
 workcell status <resource> [--json]
 ```
 
-- `resource` is the lock and queue key.
+- `resource` is the exact queue key; use one canonical name for each shared capability.
 - `--wait` joins the FIFO queue. Without it, a busy resource exits `75`.
-- `--json` captures command output in `log_path` and emits one result on stdout.
-- Busy JSON includes the owner, queue depth, and `next_action.wait_argv`.
+- `--json` emits one result on stdout, writes command output to `log_path`, and includes `owner`, `queue_ahead`, and `next_action.wait_argv` when busy.
 - `--session` or `WORKCELL_SESSION` identifies the caller.
-
-Resource names are exact coordination keys. Projects should establish one canonical name for each shared capability in their agent instructions; Workcell does not discover aliases.
 
 ## Agent contract
 
-A busy result without duration history has this shape:
+A busy JSON result looks like this:
 
 ```json
 {
@@ -65,11 +80,9 @@ Workcell coordinates cooperative callers on one host. It is not authorization, p
 
 ## Origin
 
-Workcell grew out of projects such as Pixel Brite, where parallel agent tasks competed for a Mac and its simulators, an RTX 4090, and build hosts with little spare memory.
+Workcell grew out of Pixel Brite, where parallel agents competed for a Mac and its simulators, an RTX 4090, and memory-constrained build hosts. A homegrown lease spread across several scripts worked well enough that I used coding agents to turn the pattern into Workcell.
 
-The first solution was a homegrown lease spread across a few scripts. It worked well enough that I had agents generalize the pattern into Workcell.
-
-The tradeoff is cooperation: agents must follow the protocol, usually from a few lines in `AGENTS.md`. Those instructions can be lost during context compaction or ignored, but the approach has been reliable enough to become part of my normal local workflow.
+The tradeoff is cooperation: agents must follow a few lines in `AGENTS.md`. Those instructions can be lost during context compaction or ignored, but the protocol has been reliable enough for my normal workflow.
 
 ## Development
 
@@ -78,12 +91,4 @@ make test
 make demo
 make multi-demo
 make proof
-```
-
-`make proof` compares the same three-agent workload with and without Workcell.
-
-The downloadable demo runs the released CLI and verifies FIFO handoff, exclusion, and independent resources:
-
-```bash
-curl -fsSL https://workcell-137.pages.dev/demo.sh | sh
 ```

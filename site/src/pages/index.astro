@@ -1,0 +1,61 @@
+---
+import CommandOptions from '../components/CommandOptions.astro';
+import LiveQueue from '../components/LiveQueue.astro';
+import ProductPost from '../components/ProductPost.astro';
+
+const title = 'Workcell';
+const description = 'A FIFO queue for the Macs, phones, GPUs, and rigs that coding agents share.';
+const sourceUrl = 'https://github.com/jmonster/workcell/tree/main/workcell';
+const agentInstructionsUrl = '/llms.txt';
+const commandOptions = [
+  {
+    value: 'macos-xcode',
+    summary: 'is the resource key.',
+    detail: 'Matching keys take turns; different keys run independently.',
+  },
+  {
+    value: '--wait',
+    summary: 'waits in line until the command can run.',
+    detail: 'Omit it to return immediately when the resource is busy.',
+  },
+  {
+    value: '--json',
+    summary: 'returns structured output.',
+    detail: 'Includes the owner, queue position, log path, and a command for waiting.',
+  },
+];
+---
+
+<ProductPost
+  title={title}
+  description={description}
+  product="workcell"
+  sourceUrl={sourceUrl}
+  agentInstructionsUrl={agentInstructionsUrl}
+  publishedAt="2026-07-28T14:00:00-04:00"
+  publishedLabel="Jul 28, 2026"
+>
+  <h2>What’s it for?</h2>
+
+  <p class="drop-cap">Agents are easy to multiply. Hardware is not. Two builds can target the same Mac; two tests can reset the same phone; two jobs can claim the same GPU. One command can change the resource underneath another, and a green check may belong to the wrong run.</p>
+
+  <p>Workcell gives each resource a first-in, first-out queue. One command owns it. Callers using <code>--wait</code> line up in order; callers without it receive a busy result immediately. When the owner exits, the next waiting command starts automatically. Jobs for other resources keep moving.</p>
+
+  <div class="wide-demo" id="workcell">
+    <LiveQueue id="workcell-live-queue" />
+  </div>
+
+  <h2 id="how-it-works">Install and use</h2>
+
+  <pre><code>curl -fsSL https://workcell-137.pages.dev/install.sh | sh</code></pre>
+
+  <h3>or tell your agent</h3>
+
+  <pre><code>install https://workcell-137.pages.dev{agentInstructionsUrl}</code></pre>
+
+  <p>then put Workcell in front of every command that needs <strong>the</strong> resource:</p>
+
+  <pre><code>workcell run macos-xcode --wait -- xcodebuild test</code></pre>
+
+  <CommandOptions items={commandOptions} />
+</ProductPost>

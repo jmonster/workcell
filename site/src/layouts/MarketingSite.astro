@@ -1,0 +1,122 @@
+---
+import "../styles/global.css";
+import faviconUrl from "../assets/favicon.svg?url&no-inline";
+import markUrl from "../assets/workcell-mark.svg?url&no-inline";
+import chevronUrl from "../assets/icons/chevron-down.svg?url&no-inline";
+import authorAvatar from "../assets/johnny-domino.png";
+import unfurlImage from "../assets/workcell-unfurl.png";
+
+console.log("unfurlImage", unfurlImage);
+
+interface Props {
+    title: string;
+    description: string;
+}
+
+const { title, description } = Astro.props;
+if (!Astro.site) throw new Error("Astro site URL is required");
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const unfurl = new URL(unfurlImage.src, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="description" content={description} />
+        <meta name="theme-color" content="#f9f9f8" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#10131d" media="(prefers-color-scheme: dark)" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:site_name" content="Workcell" />
+        <meta property="og:image" content={unfurl} />
+        <meta
+            property="og:image:alt"
+            content="Workcell queue tokens on a dark background."
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={unfurl} />
+        <link rel="canonical" href={canonical} />
+        <link rel="icon" href={faviconUrl} type="image/svg+xml" />
+        <title>{title}</title>
+    </head>
+    <body>
+        <div class="site-page">
+            <div class="top-gradient" aria-hidden="true"></div>
+
+            <header class="site-header">
+                <nav class="site-nav" aria-label="Primary navigation">
+                    <a class="site-logo" href="/" aria-label="Workcell home">
+                        <img src={markUrl} width="48" height="48" alt="" />
+                    </a>
+
+                    <div class="desktop-navigation">
+                        <a href="/">Home</a>
+                        <a href="#workcell">Visualization</a>
+                        <a
+                            class="is-current"
+                            href="#main-content"
+                            aria-current="page">Post</a
+                        >
+                        <a href="https://github.com/jmonster/workcell">Source</a
+                        >
+                    </div>
+
+                    <details class="mobile-navigation">
+                        <summary
+                            ><span>Post</span><img
+                                src={chevronUrl}
+                                width="20"
+                                height="20"
+                                alt=""
+                            /></summary
+                        >
+                        <div class="mobile-navigation__sheet">
+                            <a href="/">Home</a>
+                            <a href="#workcell">Visualization</a>
+                            <a
+                                class="is-current"
+                                href="#main-content"
+                                aria-current="page">Post</a
+                            >
+                            <a href="https://github.com/jmonster/workcell"
+                                >Source</a
+                            >
+                        </div>
+                    </details>
+
+                    <a
+                        class="author-shortcut"
+                        href="https://github.com/jmonster"
+                        aria-label="Johnny Domino on GitHub"
+                    >
+                        <span>@jmonster</span>
+                        <img
+                            src={authorAvatar.src}
+                            width="32"
+                            height="32"
+                            alt=""
+                        />
+                    </a>
+                </nav>
+            </header>
+
+            <slot />
+
+            <footer class="site-footer">
+                <nav aria-label="Footer navigation">
+                    <a href="https://github.com/jmonster/workcell">GitHub</a>
+                    <a href="/install.sh">Install</a>
+                    <a href="/demo.sh">Demo</a>
+                    <a href="/llms.txt">Robots</a>
+                </nav>
+            </footer>
+        </div>
+    </body>
+</html>

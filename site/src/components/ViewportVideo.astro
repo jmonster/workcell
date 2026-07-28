@@ -1,0 +1,221 @@
+---
+interface Props {
+  id: string;
+  poster: string;
+  mp4: string;
+  captions: string;
+  label: string;
+  description: string;
+}
+
+const {
+  id,
+  poster,
+  mp4,
+  captions,
+  label,
+  description,
+} = Astro.props;
+---
+
+<workcell-viewport-video>
+  <figure class="video-demo" data-video-demo>
+    <video
+      id={id}
+      class="marketing-video"
+      muted
+      playsinline
+      controls
+      preload="auto"
+      poster={poster}
+      aria-label={label}
+      aria-describedby={`${id}-description`}
+      data-viewport-video
+    >
+      <source src={mp4} type="video/mp4" />
+      <track default kind="captions" src={captions} srclang="en" label="English" />
+    </video>
+    <p class="video-demo__error" data-video-error hidden>The proof video could not load. Read the full proof below.</p>
+    <figcaption class="video-demo__footer">
+      <p id={`${id}-description`}>{description}</p>
+      <div class="video-demo__actions">
+        <button type="button" data-video-toggle aria-controls={id} disabled>Pause demo</button>
+        <button type="button" data-video-restart aria-controls={id} disabled>Restart</button>
+      </div>
+    </figcaption>
+  </figure>
+</workcell-viewport-video>
+
+<script>
+  import { observeViewportActivity } from '../scripts/viewport-activity';
+
+  class WorkcellViewportVideo extends HTMLElement {
+    cleanup?: () => void;
+
+    connectedCallback() {
+      if (this.cleanup) return;
+      const video = this.querySelector<HTMLVideoElement>('[data-viewport-video]');
+      const toggle = this.querySelector<HTMLButtonElement>('[data-video-toggle]');
+      const restart = this.querySelector<HTMLButtonElement>('[data-video-restart]');
+      const error = this.querySelector<HTMLElement>('[data-video-error]');
+      if (!video || !toggle || !restart) return;
+
+      let pausedByUser = false;
+      const syncToggle = () => {
+        toggle.textContent = video.ended ? 'Replay proof' : video.paused ? 'Play proof' : 'Pause proof';
+      };
+      const play = () => {
+        void video.play().catch(() => {
+          video.pause();
+          syncToggle();
+        });
+      };
+      const handleToggle = () => {
+        if (video.paused) {
+          if (video.ended) video.currentTime = 0;
+          pausedByUser = false;
+          play();
+        } else {
+          pausedByUser = true;
+          video.pause();
+        }
+      };
+      const handleRestart = () => {
+        video.currentTime = 0;
+        pausedByUser = false;
+        play();
+      };
+      const handleEnded = () => {
+        pausedByUser = true;
+        syncToggle();
+      };
+      const handleError = () => {
+        if (error) error.hidden = false;
+        toggle.disabled = true;
+        restart.disabled = true;
+      };
+
+      toggle.addEventListener('click', handleToggle);
+      restart.addEventListener('click', handleRestart);
+      video.addEventListener('play', syncToggle);
+      video.addEventListener('pause', syncToggle);
+      video.addEventListener('ended', handleEnded);
+      video.addEventListener('error', handleError);
+      toggle.disabled = false;
+      restart.disabled = false;
+      syncToggle();
+
+      const stopObserving = observeViewportActivity(video, (active) => {
+        if (!active) {
+          video.pause();
+          return;
+        }
+        if (!pausedByUser && !video.ended) play();
+      });
+
+      this.cleanup = () => {
+        stopObserving();
+        toggle.removeEventListener('click', handleToggle);
+        restart.removeEventListener('click', handleRestart);
+        video.removeEventListener('play', syncToggle);
+        video.removeEventListener('pause', syncToggle);
+        video.removeEventListener('ended', handleEnded);
+        video.removeEventListener('error', handleError);
+        toggle.disabled = true;
+        restart.disabled = true;
+      };
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.();
+      this.cleanup = undefined;
+    }
+  }
+
+  if (!customElements.get('workcell-viewport-video')) customElements.define('workcell-viewport-video', WorkcellViewportVideo);
+</script>
+
+<style>
+  workcell-viewport-video {
+    display: block;
+  }
+
+  .video-demo {
+    margin: clamp(3rem, 6vw, 6rem) 0 0;
+  }
+
+  .marketing-video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--media-border);
+    background: var(--terminal);
+    object-fit: contain;
+  }
+
+  .marketing-video::cue {
+    background: rgba(11, 13, 10, 0.9);
+    color: var(--pre-text);
+    font-size: 72%;
+    line-height: 1.2;
+  }
+
+  .video-demo__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--media-border);
+    border-top: 0;
+  }
+
+  .video-demo__error {
+    margin: 0;
+    padding: 1rem;
+    border: 1px solid var(--media-border);
+    border-top: 0;
+    color: var(--panel-ink);
+    background: var(--media-error-bg);
+    font-weight: 750;
+  }
+
+  .video-demo__footer p {
+    max-width: 65rem;
+    margin: 0;
+    color: var(--panel-muted);
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .video-demo__actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+  }
+
+  .video-demo__actions button {
+    min-height: 2.75rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--signal);
+    background: transparent;
+    color: var(--signal);
+    font: inherit;
+    text-transform: inherit;
+  }
+
+  @media (max-width: 640px) {
+    .video-demo__footer,
+    .video-demo__actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .video-demo__actions button {
+      justify-content: center;
+    }
+  }
+</style>
