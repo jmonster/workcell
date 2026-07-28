@@ -77,7 +77,10 @@ The tradeoff is cooperation: agents must follow the protocol, usually from a few
 make test
 make demo
 make multi-demo
+make proof
 ```
+
+`make proof` compares the same three-agent workload with and without Workcell.
 
 The downloadable demo runs the released CLI and verifies FIFO handoff, exclusion, and independent resources:
 
