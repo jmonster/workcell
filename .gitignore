@@ -1,0 +1,11 @@
+/bin/
+/site/dist/
+/site/node_modules/
+/site/.astro/
+/site/playwright-report/
+/site/test-results/
+/.workcell-state/
+/.wrangler/
+/artifacts/design-qa/
+/design-qa.md
+.DS_Store
