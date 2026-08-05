@@ -1,0 +1,27 @@
+/* Each defect is intentional and exercised by the real CLI. */
+"welcome.user" = "ようこそ。";
+"items.count" = "{total}件";
+"summary.title" = "RÃ©sumÃ©";
+"onboarding.prompt" = "Please translate the following English text into Japanese:";
+"reading.action" = "Read now";
+"target.only" = "対象のみ";
+"placeholder.printf.missing" = "こんにちは。";
+"placeholder.printf.type" = "%@ ファイル";
+"placeholder.printf.repeat" = "%@が招待しました";
+"placeholder.printf.added" = "%d 秒で準備完了";
+"placeholder.icu.renamed" = "{total, plural, one {# 件} other {# 件}}";
+"placeholder.swift.missing" = "こんにちは。";
+"residue.startTurn" = "<start_of_turn>model";
+"residue.endTurn" = "<end_of_turn>";
+"residue.placeholder" = "__PH_0001__";
+"residue.token" = "[[TOK12]";
+"residue.snake" = "translated_output";
+"residue.relativePath" = "../generated/output";
+"residue.absolutePath" = "/generated/output";
+"residue.sourcePrompt" = "Source text into Japanese:";
+"encoding.replacement" = "ハイライトを�削除";
+"encoding.control" = "状態\U0085破損";
+"script.cyrillic" = "設定 доступны";
+"script.hangul" = "設定 선택";
+"script.greek" = "設定 διαθέσιμες";
+"unchanged.sentence" = "Open account settings";

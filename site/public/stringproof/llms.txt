@@ -1,0 +1,33 @@
+# Stringproof — instructions for language models
+
+Stringproof validates Apple `.strings` catalogs for structural and linguistic corruption. It is deterministic, local, and read-only. It never translates or repairs files.
+
+## Install
+
+```sh
+curl -fsSL https://workcell-137.pages.dev/stringproof/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+## Command
+
+```text
+stringproof check <root> --source-locale <locale> [--json]
+```
+
+Catalogs must use `<locale>.lproj/*.strings`. Stringproof pairs source and target catalogs by relative path.
+
+## Agent contract
+
+Use `--json`.
+
+- Exit `0` means clean.
+- Exit `1` means findings. Read `findings` and `summary`.
+- Exit `2` means invalid invocation, unreadable input, or internal failure.
+- Each finding contains `code`, `severity`, `path`, `line`, `locale`, `key`, and `message`.
+- Human output is silent when clean.
+- Do not ask Stringproof to translate, rewrite, or repair files.
+
+Stringproof checks syntax, duplicate and drifting keys, printf/ICU/Swift placeholders, replacement characters, mojibake, prompt residue, unexpected scripts, and suspicious unchanged text.
+
+It cannot determine whether a translation is correct, natural, or appropriate. It may flag legitimate unchanged names, miss altered source text, or miss an entirely absent target locale.

@@ -1,22 +1,26 @@
 ---
 import "../styles/global.css";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 import faviconUrl from "../assets/favicon.svg?url&no-inline";
-import markUrl from "../assets/workcell-mark.svg?url&no-inline";
-import chevronUrl from "../assets/icons/chevron-down.svg?url&no-inline";
-import authorAvatar from "../assets/johnny-domino.png";
-import unfurlImage from "../assets/workcell-unfurl.png";
-
-console.log("unfurlImage", unfurlImage);
+import workcellUnfurl from "../assets/workcell-unfurl.png";
+import stringproofUnfurl from "../assets/stringproof-unfurl.png";
 
 interface Props {
     title: string;
     description: string;
+    product: "workcell" | "stringproof";
+    sourceUrl: string;
+    agentInstructionsUrl: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, product, sourceUrl, agentInstructionsUrl } = Astro.props;
 if (!Astro.site) throw new Error("Astro site URL is required");
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const agentInstructions = new URL(agentInstructionsUrl, Astro.site);
+const unfurlImage =
+    product === "workcell" ? workcellUnfurl : stringproofUnfurl;
 const unfurl = new URL(unfurlImage.src, Astro.site).href;
 ---
 
@@ -32,17 +36,22 @@ const unfurl = new URL(unfurlImage.src, Astro.site).href;
         <meta property="og:description" content={description} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={canonical} />
-        <meta property="og:site_name" content="Workcell" />
+        <meta property="og:site_name" content={title} />
         <meta property="og:image" content={unfurl} />
-        <meta
-            property="og:image:alt"
-            content="Workcell queue tokens on a dark background."
-        />
+        <meta property="og:image:width" content={String(unfurlImage.width)} />
+        <meta property="og:image:height" content={String(unfurlImage.height)} />
+        <meta property="og:image:alt" content={`${title} — ${description}`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={unfurl} />
         <link rel="canonical" href={canonical} />
+        <link
+            rel="alternate"
+            type="text/plain"
+            href={agentInstructions}
+            title={`${title} instructions for language models`}
+        />
         <link rel="icon" href={faviconUrl} type="image/svg+xml" />
         <title>{title}</title>
     </head>
@@ -50,73 +59,11 @@ const unfurl = new URL(unfurlImage.src, Astro.site).href;
         <div class="site-page">
             <div class="top-gradient" aria-hidden="true"></div>
 
-            <header class="site-header">
-                <nav class="site-nav" aria-label="Primary navigation">
-                    <a class="site-logo" href="/" aria-label="Workcell home">
-                        <img src={markUrl} width="48" height="48" alt="" />
-                    </a>
-
-                    <div class="desktop-navigation">
-                        <a href="/">Home</a>
-                        <a href="#workcell">Visualization</a>
-                        <a
-                            class="is-current"
-                            href="#main-content"
-                            aria-current="page">Post</a
-                        >
-                        <a href="https://github.com/jmonster/workcell">Source</a
-                        >
-                    </div>
-
-                    <details class="mobile-navigation">
-                        <summary
-                            ><span>Post</span><img
-                                src={chevronUrl}
-                                width="20"
-                                height="20"
-                                alt=""
-                            /></summary
-                        >
-                        <div class="mobile-navigation__sheet">
-                            <a href="/">Home</a>
-                            <a href="#workcell">Visualization</a>
-                            <a
-                                class="is-current"
-                                href="#main-content"
-                                aria-current="page">Post</a
-                            >
-                            <a href="https://github.com/jmonster/workcell"
-                                >Source</a
-                            >
-                        </div>
-                    </details>
-
-                    <a
-                        class="author-shortcut"
-                        href="https://github.com/jmonster"
-                        aria-label="Johnny Domino on GitHub"
-                    >
-                        <span>@jmonster</span>
-                        <img
-                            src={authorAvatar.src}
-                            width="32"
-                            height="32"
-                            alt=""
-                        />
-                    </a>
-                </nav>
-            </header>
+            <SiteHeader title={title} product={product} sourceUrl={sourceUrl} />
 
             <slot />
 
-            <footer class="site-footer">
-                <nav aria-label="Footer navigation">
-                    <a href="https://github.com/jmonster/workcell">GitHub</a>
-                    <a href="/install.sh">Install</a>
-                    <a href="/demo.sh">Demo</a>
-                    <a href="/llms.txt">Robots</a>
-                </nav>
-            </footer>
+            <SiteFooter sourceUrl={sourceUrl} agentInstructionsUrl={agentInstructionsUrl} />
         </div>
     </body>
 </html>

@@ -1,0 +1,45 @@
+---
+import NavigationLinks from './NavigationLinks.astro';
+import markUrl from '../assets/workcell-mark.svg?url&no-inline';
+import chevronUrl from '../assets/icons/chevron-down.svg?url&no-inline';
+import authorAvatar from '../assets/johnny-domino.png';
+
+interface Props {
+  title: string;
+  product: 'workcell' | 'stringproof';
+  sourceUrl: string;
+}
+
+const { title, product, sourceUrl } = Astro.props;
+---
+
+<header class="site-header">
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="site-logo" href="/" aria-label="Home">
+      <img src={markUrl} width="48" height="48" alt="" />
+    </a>
+
+    <div class="desktop-navigation">
+      <NavigationLinks product={product} sourceUrl={sourceUrl} />
+    </div>
+
+    <details class="mobile-navigation">
+      <summary>
+        <span>{title}</span>
+        <img src={chevronUrl} width="20" height="20" alt="" />
+      </summary>
+      <div class="mobile-navigation__sheet">
+        <NavigationLinks product={product} sourceUrl={sourceUrl} />
+      </div>
+    </details>
+
+    <a
+      class="author-shortcut"
+      href="https://github.com/jmonster"
+      aria-label="Johnny Domino on GitHub"
+    >
+      <span>@jmonster</span>
+      <img src={authorAvatar.src} width="32" height="32" alt="" />
+    </a>
+  </nav>
+</header>

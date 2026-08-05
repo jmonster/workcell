@@ -1,63 +1,61 @@
 ---
-import MarketingSite from '../layouts/MarketingSite.astro';
+import CommandOptions from '../components/CommandOptions.astro';
 import LiveQueue from '../components/LiveQueue.astro';
-import authorAvatar from '../assets/johnny-domino.png';
-import arrowLeftUrl from '../assets/icons/arrow-left.svg?url&no-inline';
+import ProductPost from '../components/ProductPost.astro';
 
 const title = 'Workcell';
 const description = 'A FIFO queue for the Macs, phones, GPUs, and rigs that coding agents share.';
+const sourceUrl = 'https://github.com/jmonster/workcell/tree/main/workcell';
+const agentInstructionsUrl = '/llms.txt';
+const commandOptions = [
+  {
+    value: 'macos-xcode',
+    summary: 'is the resource key.',
+    detail: 'Matching keys take turns; different keys run independently.',
+  },
+  {
+    value: '--wait',
+    summary: 'waits in line until the command can run.',
+    detail: 'Omit it to return immediately when the resource is busy.',
+  },
+  {
+    value: '--json',
+    summary: 'returns structured output.',
+    detail: 'Includes the owner, queue position, log path, and a command for waiting.',
+  },
+];
 ---
 
-<MarketingSite title={title} description={description}>
-  <main id="main-content" class="post-main">
-    <article>
-      <header class="post-header post-width">
-        <a class="back-link" href="https://github.com/jmonster/workcell">
-          <img src={arrowLeftUrl} width="16" height="16" alt="" />
-          View on GitHub
-        </a>
+<ProductPost
+  title={title}
+  description={description}
+  product="workcell"
+  sourceUrl={sourceUrl}
+  agentInstructionsUrl={agentInstructionsUrl}
+  publishedAt="2026-07-28T14:00:00-04:00"
+  publishedLabel="Jul 28, 2026"
+>
+  <h2>What’s it for?</h2>
 
-        <h1>{title}</h1>
-        <p class="dek">A FIFO queue for the Macs, phones, GPUs, and rigs that coding agents share.</p>
+  <p class="drop-cap">Agents are easy to multiply. Hardware is not. Two builds can target the same Mac; two tests can reset the same phone; two jobs can claim the same GPU. One command can change the resource underneath another, and a green check may belong to the wrong run.</p>
 
-        <div class="byline">
-          <a href="https://github.com/jmonster">
-            <img src={authorAvatar.src} width="32" height="32" alt="Johnny Domino" />
-            <span>Johnny Domino</span>
-          </a>
-          <time datetime="2026-07-28T14:00:00-04:00">Jul 28, 2026</time>
-        </div>
-      </header>
+  <p>Workcell gives each resource a first-in, first-out queue. One command owns it; the rest wait in order. When the owner exits, the next starts automatically. Jobs for other resources keep moving.</p>
 
-      <div class="post-prose post-width">
-        <h2>What’s it for?</h2>
+  <div class="wide-demo" id="workcell">
+    <LiveQueue id="workcell-live-queue" />
+  </div>
 
-        <p class="drop-cap">Agents are easy to multiply. Hardware is not. Two builds can target the same Mac; two tests can reset the same phone; two jobs can claim the same GPU. One command can change the resource underneath another, and a green check may belong to the wrong run.</p>
+  <h2 id="how-it-works">Install and use</h2>
 
-        <p>Workcell gives each resource a first-in, first-out queue. One command owns it; the rest wait in order. When the owner exits, the next starts automatically. Jobs for other resources keep moving.</p>
+  <pre><code>curl -fsSL https://workcell-137.pages.dev/install.sh | sh</code></pre>
 
-        <div class="wide-demo" id="workcell">
-          <LiveQueue id="workcell-live-queue" />
-        </div>
+  <h3>or tell your agent</h3>
 
-        <h2 id="how-it-works">Install and use</h2>
+  <pre><code>install https://workcell-137.pages.dev{agentInstructionsUrl}</code></pre>
 
-        <pre><code>curl -fsSL https://workcell-137.pages.dev/install.sh | sh</code></pre>
+  <p>then put Workcell in front of every command that needs <strong>the</strong> resource:</p>
 
-        <h3>or tell your agent</h3>
+  <pre><code>workcell run macos-xcode --wait -- xcodebuild test</code></pre>
 
-        <pre><code>install https://workcell-137.pages.dev/llms.txt</code></pre>
-
-        <p>put Workcell in front of every command that needs <strong>the</strong> resource:</p>
-
-        <pre><code>workcell run macos-xcode --wait -- xcodebuild test</code></pre>
-
-        <ul class="command-options">
-          <li><code>macos-xcode</code> is the resource key.<span>Matching keys take turns; different keys run independently.</span></li>
-          <li><code>--wait</code> waits in line until the command can run.<span>Omit it to return immediately when the resource is busy.</span></li>
-          <li><code>--json</code> returns structured output.<span>Includes the owner, queue position, log path, and a command for waiting.</span></li>
-        </ul>
-      </div>
-    </article>
-  </main>
-</MarketingSite>
+  <CommandOptions items={commandOptions} />
+</ProductPost>

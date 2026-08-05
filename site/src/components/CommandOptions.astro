@@ -1,0 +1,22 @@
+---
+interface CommandOption {
+  value: string;
+  summary: string;
+  detail: string;
+}
+
+interface Props {
+  items: CommandOption[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="command-options">
+  {items.map(({ value, summary, detail }) => (
+    <li>
+      <code>{value}</code> {summary}
+      <span>{detail}</span>
+    </li>
+  ))}
+</ul>

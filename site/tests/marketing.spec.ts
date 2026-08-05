@@ -29,12 +29,66 @@ test('the running illustration hands the resource to the next agent', async ({ p
 
 test('the landing page stays within a mobile viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  for (const route of ['/', '/stringproof/']) {
+    await page.goto(route);
+
+    const widths = await page.evaluate(() => ({
+      viewport: window.innerWidth,
+      document: document.documentElement.scrollWidth,
+    }));
+
+    expect(widths.document).toBeLessThanOrEqual(widths.viewport);
+  }
+});
+
+test('the header opens Stringproof and links to its source folder', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Workcell', exact: true }).first()).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await page.getByRole('link', { name: 'Stringproof' }).first().click();
 
-  const widths = await page.evaluate(() => ({
-    viewport: window.innerWidth,
-    document: document.documentElement.scrollWidth,
-  }));
+  await expect(page).toHaveURL(/\/stringproof\/$/);
+  await expect(page.locator('main h1')).toHaveText('Stringproof');
+  await expect(page.getByRole('link', { name: 'Stringproof', exact: true }).first()).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(page.getByRole('link', { name: 'Source' }).first()).toHaveAttribute(
+    'href',
+    'https://github.com/jmonster/workcell/tree/main/stringproof',
+  );
+});
 
-  expect(widths.document).toBeLessThanOrEqual(widths.viewport);
+test('each product exposes its own agent instructions', async ({ page }) => {
+  const products = [
+    {
+      route: '/',
+      instructions: '/llms.txt',
+      title: 'Workcell instructions for language models',
+    },
+    {
+      route: '/stringproof/',
+      instructions: '/stringproof/llms.txt',
+      title: 'Stringproof instructions for language models',
+    },
+  ];
+
+  for (const product of products) {
+    await page.goto(product.route);
+
+    await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Robots' })).toHaveAttribute(
+      'href',
+      product.instructions,
+    );
+    await expect(page.locator('head link[rel="alternate"][type="text/plain"]')).toHaveAttribute(
+      'href',
+      `https://workcell-137.pages.dev${product.instructions}`,
+    );
+    await expect(page.locator('head link[rel="alternate"][type="text/plain"]')).toHaveAttribute(
+      'title',
+      product.title,
+    );
+  }
 });

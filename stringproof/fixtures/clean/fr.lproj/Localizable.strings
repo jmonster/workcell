@@ -1,0 +1,9 @@
+"welcome.user" = "Bienvenue, %@.";
+"items.count" = "{count} éléments";
+"profile.owner" = "Profil de \\(name)";
+"docs.url" = "https://example.com/docs/start";
+"app.platform" = "iOS";
+"export.filename" = "report.json";
+"speech.kokoro.voice.alias.adam" = "Adam";
+"format.only" = "%@ v%@ (%@)";
+

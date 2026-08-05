@@ -54,7 +54,7 @@ trap 'rm -rf "$temporary_dir"' EXIT HUP INT TERM
 echo "Cloning Workcell..." >&2
 git clone --depth 1 --quiet https://github.com/jmonster/workcell.git "$temporary_dir/workcell"
 
-cd "$temporary_dir/workcell"
+cd "$temporary_dir/workcell/workcell"
 go build -o bin/workcell ./cmd/workcell
 
 echo "Starting three Codex agents in \"$mode\" mode..." >&2

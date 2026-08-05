@@ -413,7 +413,8 @@ func createCandidateWorkspaces(mode, seed, sharedDir, self, workcellPath string)
 		workspaces = append(workspaces, candidateWorkspace{ID: id, Worktree: worktree})
 	}
 	badWorktree := filepath.Join(worktreeRoot, regressionCandidateID)
-	if err := injectWaitRegression(filepath.Join(badWorktree, "internal", "workcell", "cli.go")); err != nil {
+	regressionPath := filepath.Join("workcell", "internal", "workcell", "cli.go")
+	if err := injectWaitRegression(filepath.Join(badWorktree, regressionPath)); err != nil {
 		return nil, err
 	}
 	for _, pair := range [][]string{{"user.name", "Workcell Agent Proof"}, {"user.email", "agent-proof@workcell.invalid"}} {
@@ -421,7 +422,7 @@ func createCandidateWorkspaces(mode, seed, sharedDir, self, workcellPath string)
 			return nil, fmt.Errorf("configure candidate commit: %w\n%s", err, output)
 		}
 	}
-	if output, err := runCommand(badWorktree, "git", "add", "internal/workcell/cli.go"); err != nil {
+	if output, err := runCommand(badWorktree, "git", "add", regressionPath); err != nil {
 		return nil, fmt.Errorf("stage candidate regression: %w\n%s", err, output)
 	}
 	if output, err := runCommand(badWorktree, "git", "commit", "--quiet", "-m", "candidate: refactor wait option handling"); err != nil {
@@ -520,7 +521,7 @@ func verifyMain(args []string) int {
 	}
 	candidateBinary := filepath.Join(config.Worktree, ".proof", "candidate-workcell")
 	build := exec.Command("go", "build", "-buildvcs=false", "-ldflags", "-buildid="+config.CandidateID, "-o", candidateBinary, "./cmd/workcell")
-	build.Dir = config.Worktree
+	build.Dir = filepath.Join(config.Worktree, "workcell")
 	build.Env = proofEnvironment(os.Environ(), config.Worktree, config.SharedDir, config.CandidateID)
 	build.Stdout = os.Stdout
 	build.Stderr = os.Stderr
@@ -622,7 +623,7 @@ func criticalMain(args []string) int {
 	}
 	testStarted := time.Now().UTC()
 	test := exec.Command("go", "test", "-count=1", "-run", acceptanceTest, "./integration")
-	test.Dir = config.OracleRepo
+	test.Dir = filepath.Join(config.OracleRepo, "workcell")
 	test.Env = environmentSet(proofEnvironment(os.Environ(), config.Worktree, config.SharedDir, config.CandidateID), "WORKCELL_INTEGRATION_BINARY", slotPath)
 	test.Stdout = os.Stdout
 	test.Stderr = os.Stderr
@@ -654,7 +655,7 @@ func runOracles(ctx context.Context, workspaces []candidateWorkspace, oracleRepo
 		diffPath := filepath.Join(armRoot, "diffs", workspace.ID+".patch")
 		var log bytes.Buffer
 		build := exec.CommandContext(ctx, "go", "build", "-buildvcs=false", "-o", binaryPath, "./cmd/workcell")
-		build.Dir = workspace.Worktree
+		build.Dir = filepath.Join(workspace.Worktree, "workcell")
 		build.Env = proofEnvironment(os.Environ(), workspace.Worktree, filepath.Join(armRoot, "shared"), workspace.ID+"-oracle")
 		build.Stdout = &log
 		build.Stderr = &log
@@ -662,7 +663,7 @@ func runOracles(ctx context.Context, workspaces []candidateWorkspace, oracleRepo
 		testErr := buildErr
 		if buildErr == nil {
 			test := exec.CommandContext(ctx, "go", "test", "-count=1", "-run", acceptanceTest, "./integration")
-			test.Dir = oracleRepo
+			test.Dir = filepath.Join(oracleRepo, "workcell")
 			test.Env = environmentSet(proofEnvironment(os.Environ(), workspace.Worktree, filepath.Join(armRoot, "shared"), workspace.ID+"-oracle"), "WORKCELL_INTEGRATION_BINARY", binaryPath)
 			test.Stdout = &log
 			test.Stderr = &log
@@ -671,7 +672,7 @@ func runOracles(ctx context.Context, workspaces []candidateWorkspace, oracleRepo
 		if err := os.WriteFile(logPath, log.Bytes(), 0o600); err != nil {
 			return nil, err
 		}
-		diffOutput, _ := runCommand(workspace.Worktree, "git", "diff", "--no-ext-diff", "--", "internal/workcell")
+		diffOutput, _ := runCommand(workspace.Worktree, "git", "diff", "--no-ext-diff", "--", "workcell/internal/workcell")
 		if err := os.WriteFile(diffPath, []byte(diffOutput), 0o600); err != nil {
 			return nil, err
 		}

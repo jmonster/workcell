@@ -1,0 +1,204 @@
+---
+import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const stringproofRoot = resolve(process.cwd(), "../stringproof");
+const sourceCatalog = readFileSync(
+  resolve(stringproofRoot, "fixtures/corrupted/en.lproj/Localizable.strings"),
+  "utf8",
+).trim();
+const targetCatalog = readFileSync(
+  resolve(stringproofRoot, "fixtures/corrupted/ja.lproj/Localizable.strings"),
+  "utf8",
+).trim();
+const demonstration = spawnSync(
+  "python3",
+  [
+    "-m",
+    "stringproof",
+    "check",
+    "fixtures/corrupted",
+    "--source-locale",
+    "en",
+  ],
+  { cwd: stringproofRoot, encoding: "utf8" },
+);
+
+if (demonstration.status !== 1 || demonstration.stderr) {
+  throw new Error(
+    `Stringproof demonstration failed: ${demonstration.stderr || `exit ${demonstration.status}`}`,
+  );
+}
+
+const actualFindings = demonstration.stdout.trim();
+const findingCount = actualFindings.split('\n').length;
+---
+
+<figure class="stringproof-demo">
+  <div class="catalog-audit">
+    <div class="catalogs">
+      <section class="catalog">
+        <header>
+          <span>Source</span>
+          <code>en.lproj/Localizable.strings</code>
+        </header>
+        <pre><code>{sourceCatalog}</code></pre>
+      </section>
+
+      <section class="catalog">
+        <header>
+          <span>Corrupted target</span>
+          <code>ja.lproj/Localizable.strings</code>
+        </header>
+        <pre><code>{targetCatalog}</code></pre>
+      </section>
+    </div>
+
+    <section class="findings">
+      <header>
+        <span>Stringproof findings</span>
+        <code>exit 1</code>
+      </header>
+      <pre><code>{actualFindings}</code></pre>
+    </section>
+  </div>
+
+  <figcaption>One damaged catalog produces {findingCount} findings.</figcaption>
+</figure>
+
+<style>
+  .stringproof-demo {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--paper);
+    box-shadow: var(--shadow-md);
+  }
+
+  .catalog-audit {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 18% 0%, var(--demo-wash-a), transparent 42%),
+      radial-gradient(circle at 95% 90%, var(--demo-wash-b), transparent 46%),
+      var(--demo-bg);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .catalogs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .catalog {
+    min-width: 0;
+    padding: clamp(20px, 3vw, 32px);
+    border: 1px solid var(--demo-border);
+    border-radius: 12px;
+    background: var(--demo-panel-bg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .catalog header,
+  .findings header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--soft);
+    text-transform: uppercase;
+  }
+
+  .catalog header span,
+  .findings header span {
+    flex: 0 0 auto;
+  }
+
+  .catalog header code,
+  .findings header code {
+    overflow-wrap: anywhere;
+    padding: 0;
+    color: var(--text-strong);
+    background: transparent;
+    font: inherit;
+    text-align: right;
+    text-transform: none;
+  }
+
+  .catalog pre,
+  .findings pre {
+    overflow-x: auto;
+    margin: 20px 0 0;
+    padding: 0;
+    border-radius: 0;
+    color: var(--text-strong);
+    background: transparent;
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  .findings {
+    margin: 0 16px 16px;
+    padding: clamp(20px, 3vw, 32px);
+    border: 1px solid var(--media-border);
+    border-radius: 12px;
+    color: #f2f3ff;
+    background: var(--terminal);
+  }
+
+  .findings header {
+    color: #9da598;
+  }
+
+  .findings header code,
+  .findings pre {
+    color: #f2f3ff;
+  }
+
+  .findings pre {
+    max-height: 260px;
+  }
+
+  .stringproof-demo figcaption {
+    margin: 0;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--paper);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    .catalogs {
+      grid-template-columns: 1fr;
+      padding: 12px;
+    }
+
+    .catalog header,
+    .findings header {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .catalog header code,
+    .findings header code {
+      text-align: left;
+    }
+
+    .findings {
+      margin: 0 12px 12px;
+    }
+
+    .stringproof-demo figcaption {
+      font-size: 13px;
+    }
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+import CommandOptions from '../../components/CommandOptions.astro';
+import ProductPost from '../../components/ProductPost.astro';
+import StringproofDemo from '../../components/StringproofDemo.astro';
+
+const title = 'Stringproof';
+const description = 'Catch damaged translations before they ship.';
+const sourceUrl = 'https://github.com/jmonster/workcell/tree/main/stringproof';
+const agentInstructionsUrl = '/stringproof/llms.txt';
+const commandOptions = [
+  {
+    value: '0',
+    summary: 'is clean.',
+    detail: 'With no findings, the default command prints nothing.',
+  },
+  {
+    value: '1',
+    summary: 'means findings.',
+    detail: 'Syntax, keys, placeholders, encoding, prompt residue, script contamination, and suspicious unchanged text are covered.',
+  },
+  {
+    value: '2',
+    summary: 'means the check could not run.',
+    detail: 'Invalid invocation, unreadable input, and internal failures go to stderr.',
+  },
+];
+---
+
+<ProductPost
+  title={title}
+  description={description}
+  product="stringproof"
+  sourceUrl={sourceUrl}
+  agentInstructionsUrl={agentInstructionsUrl}
+  publishedAt="2026-08-05T00:00:00-04:00"
+  publishedLabel="Aug 5, 2026"
+>
+  <h2>What’s it for?</h2>
+
+  <p class="drop-cap">Translation output can parse cleanly and still be broken. Placeholders disappear, scripts mix, prompt instructions leak into values, and encoding damage survives review.</p>
+
+  <p>Stringproof compares every Apple <code>.strings</code> target with its source and reports the damage. It is deterministic, local, and read-only: it validates translations but never translates or repairs them.</p>
+
+  <div class="wide-demo" id="demonstration">
+    <StringproofDemo />
+  </div>
+
+  <h2 id="use-it">Install and use</h2>
+
+  <pre><code>curl -fsSL https://workcell-137.pages.dev/stringproof/install.sh | sh</code></pre>
+
+  <h3>or tell your agent</h3>
+
+  <pre><code>install https://workcell-137.pages.dev{agentInstructionsUrl}</code></pre>
+
+  <p>then check the directory that contains the locale folders:</p>
+
+  <pre><code>stringproof check ios --source-locale en</code></pre>
+
+  <h3>or return stable JSON</h3>
+
+  <pre><code>stringproof check ios --source-locale en --json</code></pre>
+
+  <p>Stringproof finds Apple <code>.strings</code> catalogs, pairs each target with its source by relative path, and checks their keys and values.</p>
+
+  <CommandOptions items={commandOptions} />
+
+  <p id="limits"><strong>Limits.</strong> Stringproof can show that catalogs line up and that known corruption patterns are absent. It cannot show that a translation is correct, natural, or appropriate. It may flag a legitimate unchanged name, miss source text after a small alteration, or miss an entirely absent target catalog.</p>
+
+  <p>Stringproof supports Apple <code>.strings</code> only. It uses no credentials, network access, model calls, configuration, or repair mode. <a href={sourceUrl}>View Stringproof on GitHub ↗</a></p>
+</ProductPost>

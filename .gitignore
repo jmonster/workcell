@@ -1,11 +1,14 @@
-/bin/
+/workcell/bin/
+/workcell/artifacts/
+__pycache__/
+*.py[cod]
 /site/dist/
 /site/node_modules/
 /site/.astro/
 /site/playwright-report/
 /site/test-results/
-/.workcell-state/
+/workcell/.workcell-state/
 /.wrangler/
-/artifacts/design-qa/
+/artifacts/
 /design-qa.md
 .DS_Store

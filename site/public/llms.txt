@@ -1,4 +1,4 @@
-# Workcell
+# Workcell — instructions for language models
 
 Workcell gives cooperative coding agents a host-local FIFO queue for shared Macs, devices, GPUs, rigs, and license seats. Commands using different resource keys run concurrently.
 
