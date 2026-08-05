@@ -1,0 +1,27 @@
+/* A compact source catalog for the Stringproof demonstration. */
+"welcome.user" = "Welcome, %@.";
+"items.count" = "{count} items";
+"summary.title" = "Résumé";
+"onboarding.prompt" = "Welcome";
+"reading.action" = "Read now";
+"settings.open" = "Open Settings";
+"placeholder.printf.missing" = "Hello, %@.";
+"placeholder.printf.type" = "%d files";
+"placeholder.printf.repeat" = "%@ invited %@";
+"placeholder.printf.added" = "Ready";
+"placeholder.icu.renamed" = "{count, plural, one {# item} other {# items}}";
+"placeholder.swift.missing" = "Hello, \\(name).";
+"residue.startTurn" = "Welcome";
+"residue.endTurn" = "Continue";
+"residue.placeholder" = "Your name";
+"residue.token" = "Reading in %@";
+"residue.snake" = "Translation complete";
+"residue.relativePath" = "Export complete";
+"residue.absolutePath" = "Import complete";
+"residue.sourcePrompt" = "Welcome";
+"encoding.replacement" = "Remove highlight";
+"encoding.control" = "Status ready";
+"script.cyrillic" = "Settings available";
+"script.hangul" = "Settings available";
+"script.greek" = "Settings available";
+"unchanged.sentence" = "Open account settings";

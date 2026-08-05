@@ -18,11 +18,23 @@ for (const binary of binaries) {
   }
 }
 
-for (const script of ['install.sh', 'demo.sh']) {
+const stringproof = await stat(path.join(downloadsRoot, 'stringproof.pyz'));
+if (!stringproof.isFile() || stringproof.size === 0 || (stringproof.mode & 0o111) === 0) {
+  throw new Error('release executable is missing, empty, or not executable: stringproof.pyz');
+}
+
+for (const script of ['install.sh', 'demo.sh', 'stringproof/install.sh']) {
   const info = await stat(path.join(publicRoot, script));
   if (!info.isFile() || (info.mode & 0o111) === 0) {
     throw new Error(`release script is missing or not executable: ${script}`);
   }
 }
 
-console.log(`verified_release_binaries=${binaries.length}`);
+for (const instructions of ['llms.txt', 'stringproof/llms.txt']) {
+  const info = await stat(path.join(publicRoot, instructions));
+  if (!info.isFile() || info.size === 0) {
+    throw new Error(`agent instructions are missing or empty: ${instructions}`);
+  }
+}
+
+console.log(`verified_release_executables=${binaries.length + 1}`);

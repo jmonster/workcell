@@ -1,0 +1,18 @@
+---
+interface Props {
+  sourceUrl: string;
+  agentInstructionsUrl: string;
+}
+
+const { sourceUrl, agentInstructionsUrl } = Astro.props;
+const links = [
+  ['GitHub', sourceUrl],
+  ['Robots', agentInstructionsUrl],
+];
+---
+
+<footer class="site-footer">
+  <nav aria-label="Footer navigation">
+    {links.map(([label, href]) => <a href={href}>{label}</a>)}
+  </nav>
+</footer>

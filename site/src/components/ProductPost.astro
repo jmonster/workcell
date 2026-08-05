@@ -1,0 +1,59 @@
+---
+import MarketingSite from '../layouts/MarketingSite.astro';
+import authorAvatar from '../assets/johnny-domino.png';
+import arrowLeftUrl from '../assets/icons/arrow-left.svg?url&no-inline';
+
+interface Props {
+  title: string;
+  description: string;
+  product: 'workcell' | 'stringproof';
+  sourceUrl: string;
+  agentInstructionsUrl: string;
+  publishedAt: string;
+  publishedLabel: string;
+}
+
+const {
+  title,
+  description,
+  product,
+  sourceUrl,
+  agentInstructionsUrl,
+  publishedAt,
+  publishedLabel,
+} = Astro.props;
+---
+
+<MarketingSite
+  title={title}
+  description={description}
+  product={product}
+  sourceUrl={sourceUrl}
+  agentInstructionsUrl={agentInstructionsUrl}
+>
+  <main id="main-content" class="post-main">
+    <article>
+      <header class="post-header post-width">
+        <a class="back-link" href={sourceUrl}>
+          <img src={arrowLeftUrl} width="16" height="16" alt="" />
+          View on GitHub
+        </a>
+
+        <h1>{title}</h1>
+        <p class="dek">{description}</p>
+
+        <div class="byline">
+          <a href="https://github.com/jmonster">
+            <img src={authorAvatar.src} width="32" height="32" alt="Johnny Domino" />
+            <span>Johnny Domino</span>
+          </a>
+          <time datetime={publishedAt}>{publishedLabel}</time>
+        </div>
+      </header>
+
+      <div class="post-prose post-width">
+        <slot />
+      </div>
+    </article>
+  </main>
+</MarketingSite>

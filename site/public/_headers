@@ -26,7 +26,15 @@
   Content-Type: application/octet-stream
   Content-Disposition: attachment; filename="workcell-linux-amd64"
 
+/downloads/stringproof.pyz
+  Content-Type: application/zip
+  Content-Disposition: attachment; filename="stringproof"
+
 /install.sh
+  Content-Type: text/x-shellscript; charset=utf-8
+  Cache-Control: public, max-age=30, must-revalidate
+
+/stringproof/install.sh
   Content-Type: text/x-shellscript; charset=utf-8
   Cache-Control: public, max-age=30, must-revalidate
 
@@ -35,5 +43,9 @@
   Cache-Control: public, max-age=30, must-revalidate
 
 /llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=300
+
+/stringproof/llms.txt
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=300

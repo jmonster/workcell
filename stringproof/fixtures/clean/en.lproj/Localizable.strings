@@ -1,0 +1,10 @@
+/* Legitimate source values include placeholders and stable identifiers. */
+"welcome.user" = "Welcome, %@.";
+"items.count" = "{count} items";
+"profile.owner" = "Profile for \\(name)";
+"docs.url" = "https://example.com/docs/start";
+"app.platform" = "iOS";
+"export.filename" = "report.json";
+"speech.kokoro.voice.alias.adam" = "Adam";
+"format.only" = "%@ v%@ (%@)";
+

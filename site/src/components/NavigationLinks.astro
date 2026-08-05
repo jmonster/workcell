@@ -1,0 +1,25 @@
+---
+interface Props {
+  product: 'workcell' | 'stringproof';
+}
+
+const { product } = Astro.props;
+const links = [
+  {
+    label: 'Stringproof',
+    href: '/stringproof/',
+    current: product === 'stringproof',
+  },
+  {
+    label: 'Workcell',
+    href: '/',
+    current: product === 'workcell',
+  },
+];
+---
+
+{links.map(({ label, href, current }) => (
+  <a class:list={{ 'is-current': current }} href={href} aria-current={current ? 'page' : undefined}>
+    {label}
+  </a>
+))}

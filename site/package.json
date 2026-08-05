@@ -12,8 +12,8 @@
     "build": "pnpm check && astro build",
     "preview": "astro preview",
     "test:e2e": "pnpm build && playwright test",
-    "verify:release": "cd .. && GOFLAGS=-mod=readonly make test && cd site && node scripts/verify-release-assets.mjs",
-    "deploy": "pnpm build && pnpm verify:release && wrangler pages deploy --branch main"
+    "verify:release": "cd .. && GOFLAGS=-mod=readonly make test stringproof-release-asset && cd site && node scripts/verify-release-assets.mjs",
+    "deploy": "pnpm verify:release && pnpm build && wrangler pages deploy --branch main"
   },
   "dependencies": {
     "astro": "7.1.5"
@@ -21,6 +21,7 @@
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@playwright/test": "1.62.0",
+    "@types/node": "^26.1.2",
     "typescript": "6.0.3",
     "wrangler": "4.115.0"
   }

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-output_dir="$repo_root/site/public/downloads"
+workcell_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repository_root="$(cd "$workcell_root/.." && pwd)"
+output_dir="$repository_root/site/public/downloads"
 
 mkdir -p "$output_dir"
 
@@ -18,7 +19,7 @@ for target in "${targets[@]}"; do
   output_path="$output_dir/workcell-$target_os-$target_arch"
   printf 'building %s/%s\n' "$target_os" "$target_arch"
   (
-    cd "$repo_root"
+    cd "$workcell_root"
     CGO_ENABLED=0 GOOS="$target_os" GOARCH="$target_arch" \
       go build -mod=readonly -buildvcs=false -trimpath -ldflags='-s -w' \
       -o "$output_path" ./cmd/workcell
