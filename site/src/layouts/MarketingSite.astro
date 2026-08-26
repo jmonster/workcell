@@ -5,11 +5,12 @@ import SiteHeader from "../components/SiteHeader.astro";
 import faviconUrl from "../assets/favicon.svg?url&no-inline";
 import workcellUnfurl from "../assets/workcell-unfurl.png";
 import stringproofUnfurl from "../assets/stringproof-unfurl.png";
+import playbookUnfurl from "../assets/playbook-unfurl.png";
 
 interface Props {
     title: string;
     description: string;
-    product: "workcell" | "stringproof";
+    product: "workcell" | "stringproof" | "playbook";
     sourceUrl: string;
     agentInstructionsUrl: string;
 }
@@ -19,8 +20,11 @@ if (!Astro.site) throw new Error("Astro site URL is required");
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const agentInstructions = new URL(agentInstructionsUrl, Astro.site);
-const unfurlImage =
-    product === "workcell" ? workcellUnfurl : stringproofUnfurl;
+const unfurlImage = product === "stringproof"
+    ? stringproofUnfurl
+    : product === "playbook"
+        ? playbookUnfurl
+        : workcellUnfurl;
 const unfurl = new URL(unfurlImage.src, Astro.site).href;
 ---
 

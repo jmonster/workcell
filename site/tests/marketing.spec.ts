@@ -29,7 +29,7 @@ test('the running illustration hands the resource to the next agent', async ({ p
 
 test('the landing page stays within a mobile viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of ['/', '/stringproof/']) {
+  for (const route of ['/', '/stringproof/', '/playbook/']) {
     await page.goto(route);
 
     const widths = await page.evaluate(() => ({
@@ -39,6 +39,36 @@ test('the landing page stays within a mobile viewport', async ({ page }) => {
 
     expect(widths.document).toBeLessThanOrEqual(widths.viewport);
   }
+});
+
+test('the desktop navigation does not wrap before yielding to mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 1000, height: 700 });
+  await page.goto('/playbook/');
+
+  const linkHeights = await page.locator('.desktop-navigation a').evaluateAll((links) =>
+    links.map((link) => link.getBoundingClientRect().height),
+  );
+  expect(new Set(linkHeights)).toEqual(new Set([36]));
+
+  await page.setViewportSize({ width: 800, height: 700 });
+  await expect(page.locator('.desktop-navigation')).toBeHidden();
+  await expect(page.locator('.mobile-navigation')).toBeVisible();
+});
+
+test('the header opens Playbook and links to its source folder', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Playbook' }).first().click();
+
+  await expect(page).toHaveURL(/\/playbook\/$/);
+  await expect(page.locator('main h1')).toHaveText('Playbook');
+  await expect(page.getByRole('link', { name: 'Playbook', exact: true }).first()).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(page.getByRole('link', { name: 'View on GitHub' })).toHaveAttribute(
+    'href',
+    'https://github.com/jmonster/workcell/tree/main/playbook',
+  );
 });
 
 test('the header opens Stringproof and links to its source folder', async ({ page }) => {
@@ -73,6 +103,11 @@ test('each product exposes its own agent instructions', async ({ page }) => {
       route: '/stringproof/',
       instructions: '/stringproof/llms.txt',
       title: 'Stringproof instructions for language models',
+    },
+    {
+      route: '/playbook/',
+      instructions: '/playbook/llms.txt',
+      title: 'Playbook instructions for language models',
     },
   ];
 

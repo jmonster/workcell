@@ -1,0 +1,117 @@
+---
+const decisions = [
+  ['Existing command or instruction', 'Extend it'],
+  ['Repeatable, deterministic steps', 'Script or CLI'],
+  ['Recurring judgment or routing', 'Skill'],
+  ['External service or data source', 'MCP integration'],
+  ['Repository-wide invariant', 'AGENTS.md'],
+  ['Safe one-off', 'Nothing'],
+];
+---
+
+<div class="playbook-demo" aria-label="Where different kinds of repeated work belong">
+  <div class="decision-header" aria-hidden="true">
+    <span>Work</span>
+    <span>Result</span>
+  </div>
+
+  <dl>
+    {decisions.map(([signal, result]) => (
+      <div>
+        <dt>{signal}</dt>
+        <dd><code>{result}</code></dd>
+      </div>
+    ))}
+  </dl>
+</div>
+
+<style>
+  .playbook-demo {
+    margin: 40px 0 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    color: var(--panel-ink);
+    background: var(--paper);
+    box-shadow: var(--shadow-md);
+  }
+
+  .decision-header,
+  dl > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 0.42fr);
+    align-items: center;
+    gap: 32px;
+  }
+
+  .decision-header {
+    padding: 18px clamp(24px, 4vw, 44px);
+    color: var(--soft);
+    background: var(--demo-header-bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  dl {
+    margin: 0;
+    padding: 0 clamp(24px, 4vw, 44px);
+    background:
+      radial-gradient(circle at 12% 0%, var(--demo-wash-a), transparent 38%),
+      radial-gradient(circle at 100% 100%, var(--demo-wash-b), transparent 42%),
+      var(--demo-bg);
+  }
+
+  dl > div {
+    min-height: 72px;
+    border-top: 1px solid var(--demo-border);
+  }
+
+  dt,
+  dd {
+    margin: 0;
+  }
+
+  dt {
+    font-size: 16px;
+    font-weight: 550;
+    line-height: 1.35;
+  }
+
+  dd {
+    text-align: right;
+  }
+
+  .playbook-demo code {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    color: var(--signal);
+    background: var(--progress-bg);
+    font-size: 12px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    .decision-header {
+      display: none;
+    }
+
+    dl {
+      padding: 0 20px;
+    }
+
+    dl > div {
+      grid-template-columns: 1fr;
+      gap: 8px;
+      min-height: 0;
+      padding: 18px 0;
+    }
+
+    dd {
+      text-align: left;
+    }
+  }
+</style>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Playbook"
+  short_description: "Turn proven work into durable interfaces"
+  default_prompt: "Use $playbook to turn this recurring workflow into the smallest appropriate reusable interface."

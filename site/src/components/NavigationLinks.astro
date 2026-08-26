@@ -1,25 +1,42 @@
 ---
 interface Props {
-  product: 'workcell' | 'stringproof';
+  product: 'workcell' | 'stringproof' | 'playbook';
 }
 
 const { product } = Astro.props;
 const links = [
   {
+    label: 'Playbook',
+    href: '/playbook/',
+    current: product === 'playbook',
+    emphasis: 'secondary',
+  },
+  {
     label: 'Stringproof',
     href: '/stringproof/',
     current: product === 'stringproof',
+    emphasis: 'secondary',
   },
   {
     label: 'Workcell',
     href: '/',
     current: product === 'workcell',
+    emphasis: 'primary',
   },
 ];
 ---
 
-{links.map(({ label, href, current }) => (
-  <a class:list={{ 'is-current': current }} href={href} aria-current={current ? 'page' : undefined}>
+{links.map(({ label, href, current, emphasis }) => (
+  <a
+    class:list={{
+      'is-current': current,
+      'is-primary': emphasis === 'primary',
+      'is-secondary': emphasis === 'secondary',
+      'is-workcell': label === 'Workcell',
+    }}
+    href={href}
+    aria-current={current ? 'page' : undefined}
+  >
     {label}
   </a>
 ))}

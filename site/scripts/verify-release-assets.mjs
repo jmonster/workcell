@@ -23,7 +23,7 @@ if (!stringproof.isFile() || stringproof.size === 0 || (stringproof.mode & 0o111
   throw new Error('release executable is missing, empty, or not executable: stringproof.pyz');
 }
 
-for (const script of ['install.sh', 'demo.sh', 'stringproof/install.sh']) {
+for (const script of ['install.sh', 'demo.sh', 'stringproof/install.sh', 'playbook/install.sh']) {
   const info = await stat(path.join(publicRoot, script));
   if (!info.isFile() || (info.mode & 0o111) === 0) {
     throw new Error(`release script is missing or not executable: ${script}`);

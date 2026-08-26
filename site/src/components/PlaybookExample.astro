@@ -1,0 +1,175 @@
+---
+import { spawnSync } from 'node:child_process';
+import { resolve } from 'node:path';
+
+const stringproofRoot = resolve(process.cwd(), '../stringproof');
+const command = 'stringproof check fixtures/corrupted --source-locale en';
+const demonstration = spawnSync(
+  'python3',
+  ['-m', 'stringproof', 'check', 'fixtures/corrupted', '--source-locale', 'en'],
+  { cwd: stringproofRoot, encoding: 'utf8' },
+);
+
+if (demonstration.status !== 1 || demonstration.stderr) {
+  throw new Error(
+    `Playbook example failed: ${demonstration.stderr || `exit ${demonstration.status}`}`,
+  );
+}
+
+const findings = demonstration.stdout.trim().split('\n');
+const preview = findings.slice(0, 3).join('\n');
+---
+
+<figure class="playbook-example">
+  <div class="example-flow">
+    <section>
+      <span>Observed work</span>
+      <strong>Check translated <code>.strings</code> files</strong>
+      <p>Source and target catalogs go in. Findings and an exit status come out.</p>
+    </section>
+    <span class="example-arrow" aria-hidden="true">→</span>
+    <section>
+      <span>Playbook decision</span>
+      <strong>CLI</strong>
+      <p>The checks are deterministic; they do not require model judgment.</p>
+    </section>
+  </div>
+
+  <div class="example-terminal">
+    <header><span>Resulting interface</span><code>exit 1</code></header>
+    <pre><code>$ {command}
+{preview}
+… {findings.length - 3} more findings</code></pre>
+  </div>
+
+  <figcaption>The example runs against the repository fixture when this page builds. This run produced {findings.length} findings.</figcaption>
+</figure>
+
+<style>
+  .playbook-example {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--paper);
+    box-shadow: var(--shadow-md);
+  }
+
+  .example-flow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+    padding: clamp(24px, 4vw, 40px);
+    color: var(--panel-ink);
+    background:
+      radial-gradient(circle at 12% 0%, var(--demo-wash-a), transparent 42%),
+      radial-gradient(circle at 100% 100%, var(--demo-wash-b), transparent 46%),
+      var(--demo-bg);
+  }
+
+  .example-flow section {
+    min-width: 0;
+  }
+
+  .example-flow section > span,
+  .example-terminal header {
+    color: var(--soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+
+  .example-flow strong {
+    display: block;
+    margin-top: 10px;
+    color: var(--text-strong);
+    font-size: 20px;
+    line-height: 1.3;
+  }
+
+  .example-flow strong code {
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    font-size: .9em;
+  }
+
+  .example-flow p {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .example-arrow {
+    color: var(--signal);
+    font-size: 28px;
+  }
+
+  .example-terminal {
+    margin: 0 16px 16px;
+    padding: clamp(20px, 3vw, 28px);
+    overflow: hidden;
+    border-radius: 12px;
+    color: #f2f3ff;
+    background: var(--terminal);
+  }
+
+  .example-terminal header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: #9da598;
+  }
+
+  .example-terminal header code {
+    padding: 0;
+    color: #f2f3ff;
+    background: transparent;
+    font: inherit;
+    text-transform: none;
+  }
+
+  .example-terminal pre {
+    overflow-x: auto;
+    margin: 18px 0 0;
+    padding: 0;
+    color: #f2f3ff;
+    background: transparent;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  .playbook-example figcaption {
+    margin: 0;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    .example-flow {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 24px 20px;
+    }
+
+    .example-arrow {
+      transform: rotate(90deg);
+      transform-origin: center;
+    }
+
+    .example-terminal {
+      margin: 0 12px 12px;
+      padding: 20px;
+    }
+
+    .playbook-example figcaption {
+      font-size: 13px;
+    }
+  }
+</style>

@@ -38,6 +38,10 @@
   Content-Type: text/x-shellscript; charset=utf-8
   Cache-Control: public, max-age=30, must-revalidate
 
+/playbook/install.sh
+  Content-Type: text/x-shellscript; charset=utf-8
+  Cache-Control: public, max-age=30, must-revalidate
+
 /demo.sh
   Content-Type: text/x-shellscript; charset=utf-8
   Cache-Control: public, max-age=30, must-revalidate
@@ -48,4 +52,12 @@
 
 /stringproof/llms.txt
   Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=300
+
+/playbook/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=300
+
+/playbook/openai.yaml
+  Content-Type: application/yaml; charset=utf-8
   Cache-Control: public, max-age=300

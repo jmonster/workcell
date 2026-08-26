@@ -1,0 +1,62 @@
+---
+import PlaybookDemo from '../../components/PlaybookDemo.astro';
+import PlaybookExample from '../../components/PlaybookExample.astro';
+import ProductPost from '../../components/ProductPost.astro';
+
+const title = 'Playbook';
+const description = 'A skill for turning repeated agent work into reusable commands, skills, and rules.';
+const sourceUrl = 'https://github.com/jmonster/workcell/tree/main/playbook';
+const agentInstructionsUrl = '/playbook/llms.txt';
+---
+
+<ProductPost
+  title={title}
+  description={description}
+  product="playbook"
+  sourceUrl={sourceUrl}
+  agentInstructionsUrl={agentInstructionsUrl}
+  publishedAt="2026-08-25T19:36:00-04:00"
+  publishedLabel="Aug 25, 2026"
+>
+  <h2>What’s it for?</h2>
+
+  <p class="drop-cap">A coding agent can rediscover the same release, recovery, or diagnostic procedure from one task to the next. The commands and decisions live in a transcript, so the next run starts from scratch.</p>
+
+  <p>Playbook tells the agent where that knowledge should live. It starts by checking the repository’s existing commands and instructions. If one already owns the job, the agent extends it. Otherwise, the work may become a script, skill, integration, or project rule. A safe one-off adds nothing to the repository.</p>
+
+  <h2 id="example">A concrete case: Stringproof</h2>
+
+  <p>Apple <code>.strings</code> files can still parse after translation while losing a key or placeholder, gaining prompt residue, or mixing scripts. Given source and target catalogs, those checks are deterministic. Under Playbook, they belong in a CLI—not another skill.</p>
+
+  <div class="wide-demo" id="stringproof-example">
+    <PlaybookExample />
+  </div>
+
+  <p>That decision produces something testable: <code>stringproof check</code> reads a directory, reports stable findings, and exits <code>0</code>, <code>1</code>, or <code>2</code>. <a href="/stringproof/">Stringproof</a> documents the command; <a href="https://github.com/jmonster/workcell/tree/main/stringproof">the repository contains its implementation and fixtures ↗</a></p>
+
+  <h2 id="decision">What Playbook decides</h2>
+
+  <p>Work qualifies after it has recurred or when another operator must replay or recover it exactly. It also qualifies when improvisation is risky, the same judgment recurs across tasks, or an external service needs a reusable interface. A missing wrapper or possible future use is not enough.</p>
+
+  <div>
+    <PlaybookDemo />
+  </div>
+
+  <h2 id="acceptance-test">Check it against the task</h2>
+
+  <p>The agent must finish the current task through whatever it creates or changes. Doing the real work tests the result against its inputs, failures, permissions, and repository constraints. If the task still depends on remembering the old sequence, the work was not codified.</p>
+
+  <p>Playbook handles this decision only. It uses commands for deterministic work and skills for recurring judgment and routing. It rejects a new wrapper when Make, a package task, or the repository’s CLI already owns the job.</p>
+
+  <h2 id="install">Install</h2>
+
+  <p>Tell your coding agent:</p>
+
+  <pre><code>Install the Playbook skill using https://workcell-137.pages.dev{agentInstructionsUrl}</code></pre>
+
+  <p>Then use it on work that has already qualified:</p>
+
+  <pre><code>Use $playbook to decide what should persist from this task, then complete the task through it.</code></pre>
+
+  <p id="limits">The skill does not expand the task or its permissions. <a href={sourceUrl}>Read the skill on GitHub ↗</a></p>
+</ProductPost>
