@@ -55,15 +55,15 @@ test('the desktop navigation does not wrap before yielding to mobile', async ({ 
   await expect(page.locator('.mobile-navigation')).toBeVisible();
 });
 
-test('the header links to the studio work and author profiles', async ({ page }) => {
+test('the header links to the studio homepage and author profile', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 700 });
   await page.goto('/');
 
   const desktopIdentity = page.locator('.identity-shortcuts');
   await expect(desktopIdentity).toHaveText(/@work\s*\|\s*@jmonster/);
-  await expect(desktopIdentity.getByRole('link', { name: 'Wabi Sabi Ware work' })).toHaveAttribute(
+  await expect(desktopIdentity.getByRole('link', { name: 'Wabi Sabi Ware' })).toHaveAttribute(
     'href',
-    'https://wabisabiwar.es/work/',
+    'https://wabisabiwar.es/',
   );
   await expect(desktopIdentity.getByRole('link', { name: '@jmonster on GitHub' })).toHaveAttribute(
     'href',
