@@ -29,16 +29,21 @@ const { title, product } = Astro.props;
       </summary>
       <div class="mobile-navigation__sheet">
         <NavigationLinks product={product} />
+        <div class="mobile-identity-shortcuts">
+          <a href="https://wabisabiwar.es/work/">@work</a>
+          <span aria-hidden="true">|</span>
+          <a href="https://github.com/jmonster">@jmonster</a>
+        </div>
       </div>
     </details>
 
-    <a
-      class="author-shortcut"
-      href="https://github.com/jmonster"
-      aria-label="Johnny Domino on GitHub"
-    >
-      <span>@jmonster</span>
-      <img src={authorAvatar.src} width="32" height="32" alt="" />
-    </a>
+    <div class="identity-shortcuts">
+      <a href="https://wabisabiwar.es/work/" aria-label="Wabi Sabi Ware work">@work</a>
+      <span class="identity-separator" aria-hidden="true">|</span>
+      <a class="identity-author" href="https://github.com/jmonster" aria-label="@jmonster on GitHub">
+        <span>@jmonster</span>
+        <img src={authorAvatar.src} width="32" height="32" alt="" />
+      </a>
+    </div>
   </nav>
 </header>

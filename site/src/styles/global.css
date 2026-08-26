@@ -287,21 +287,38 @@ pre {
   transform: translateX(-50%);
 }
 
-.author-shortcut {
+.identity-shortcuts,
+.identity-shortcuts a {
   display: flex;
   align-items: center;
+}
+
+.identity-shortcuts {
   gap: 10px;
+}
+
+.identity-shortcuts a {
   color: var(--muted);
   font-size: 14px;
   font-weight: 500;
   transition: color 150ms ease;
+  white-space: nowrap;
 }
 
-.author-shortcut:hover {
+.identity-shortcuts a:hover {
   color: var(--text);
 }
 
-.author-shortcut img {
+.identity-separator {
+  color: var(--soft);
+  opacity: 0.55;
+}
+
+.identity-author {
+  gap: 10px;
+}
+
+.identity-author img {
   width: 32px;
   height: 32px;
   border: 2px solid var(--avatar-border);
@@ -540,7 +557,7 @@ pre {
   }
 
   .desktop-navigation,
-  .author-shortcut {
+  .identity-shortcuts {
     display: none;
   }
 
@@ -607,6 +624,23 @@ pre {
     color: var(--muted);
     font-size: 16px;
     font-weight: 500;
+  }
+
+  .mobile-identity-shortcuts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px 8px;
+    margin-top: 4px;
+    border-top: 1px solid var(--nav-border);
+    color: var(--soft);
+    font-size: 13px;
+  }
+
+  .mobile-identity-shortcuts a {
+    padding: 0;
+    font-size: inherit;
+    white-space: nowrap;
   }
 
   .mobile-navigation__sheet a.is-primary {
