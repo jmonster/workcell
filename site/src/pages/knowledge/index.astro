@@ -1,0 +1,40 @@
+---
+import ProductPost from '../../components/ProductPost.astro';
+
+const title = 'Knowledge';
+const description = 'A controlled library of technical evidence for my agents.';
+const sourceUrl = 'https://github.com/jmonster/workcell/tree/main/knowledge';
+---
+
+<ProductPost
+  title={title}
+  description={description}
+  product="knowledge"
+  sourceUrl={sourceUrl}
+  publishedAt="2026-03-17T12:00:00-04:00"
+  publishedLabel="Mar 17, 2026"
+>
+  <h2>What’s it for?</h2>
+
+  <p class="drop-cap">Models can sound certain while relying on stale or incomplete information. My agents work across specialized domains, so they need the relevant source material in context before they decide or act.</p>
+
+  <p>Knowledge gives my agents a controlled place to look. It mirrors sources I rely on, indexes them for their domain, and returns compact JSON with source references and supporting text where the material provides them. The corpus supplies the evidence; the agent decides what to do with it.</p>
+
+  <h2 id="disciplines">One interface, different disciplines</h2>
+
+  <p>My collection began with Apple developer documentation and the Human Interface Guidelines. I have since applied it to biology, chemistry, physics, mathematics, protocols, graphics and media, web platforms, design, survival, and pool chemistry.</p>
+
+  <p>One retrieval shape did not fit every source. Each application keeps its own schema and ranking rules while Knowledge normalizes the result for the agent.</p>
+
+  <h2 id="work">How it serves the work</h2>
+
+  <p>When a task depends on exact behavior, the agent asks the relevant knowledge base before it decides or implements. The interface supports a limited first response followed by an explicit request for fuller text. My query contract treats missing provenance as a gap rather than an answer.</p>
+
+  <p>The bet is that a smaller, cheaper model that can call tools does not need every specialist fact in its weights. It can retrieve maintained evidence at the point of work. That makes an Apple Intelligence–class on-device agent a plausible consumer: the model supplies general capability while Knowledge supplies domain material it does not carry.</p>
+
+  <h2 id="resource">The scarce part</h2>
+
+  <p>As inference becomes cheaper, maintained knowledge may become a gated resource. Models can be replaced, multiplied, or moved onto a device. A corpus still has to be collected, normalized, cited, refreshed, and improved when an agent exposes a miss.</p>
+
+  <p>Knowledge lets me improve a source once and make that improvement available to every agent querying it. The agent can be small, local, and disposable.</p>
+</ProductPost>

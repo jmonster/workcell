@@ -6,9 +6,9 @@ import arrowLeftUrl from '../assets/icons/arrow-left.svg?url&no-inline';
 interface Props {
   title: string;
   description: string;
-  product: 'workcell' | 'stringproof' | 'playbook';
+  product: 'workcell' | 'stringproof' | 'playbook' | 'knowledge';
   sourceUrl: string;
-  agentInstructionsUrl: string;
+  agentInstructionsUrl?: string;
   publishedAt: string;
   publishedLabel: string;
 }
@@ -34,12 +34,10 @@ const {
   <main id="main-content" class="post-main">
     <article>
       <header class="post-header post-width">
-        {sourceUrl && (
-          <a class="back-link" href={sourceUrl}>
-            <img src={arrowLeftUrl} width="16" height="16" alt="" />
-            View on GitHub
-          </a>
-        )}
+        <a class="back-link" href={sourceUrl}>
+          <img src={arrowLeftUrl} width="16" height="16" alt="" />
+          View on GitHub
+        </a>
 
         <h1>{title}</h1>
         <p class="dek">{description}</p>

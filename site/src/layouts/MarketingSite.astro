@@ -6,25 +6,30 @@ import faviconUrl from "../assets/favicon.svg?url&no-inline";
 import workcellUnfurl from "../assets/workcell-unfurl.png";
 import stringproofUnfurl from "../assets/stringproof-unfurl.png";
 import playbookUnfurl from "../assets/playbook-unfurl.png";
+import knowledgeUnfurl from "../assets/knowledge-unfurl.png";
 
 interface Props {
     title: string;
     description: string;
-    product: "workcell" | "stringproof" | "playbook";
+    product: "workcell" | "stringproof" | "playbook" | "knowledge";
     sourceUrl: string;
-    agentInstructionsUrl: string;
+    agentInstructionsUrl?: string;
 }
 
 const { title, description, product, sourceUrl, agentInstructionsUrl } = Astro.props;
 if (!Astro.site) throw new Error("Astro site URL is required");
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const agentInstructions = new URL(agentInstructionsUrl, Astro.site);
+const agentInstructions = agentInstructionsUrl
+    ? new URL(agentInstructionsUrl, Astro.site)
+    : undefined;
 const unfurlImage = product === "stringproof"
     ? stringproofUnfurl
     : product === "playbook"
         ? playbookUnfurl
-        : workcellUnfurl;
+        : product === "knowledge"
+            ? knowledgeUnfurl
+            : workcellUnfurl;
 const unfurl = new URL(unfurlImage.src, Astro.site).href;
 ---
 
@@ -50,12 +55,14 @@ const unfurl = new URL(unfurlImage.src, Astro.site).href;
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={unfurl} />
         <link rel="canonical" href={canonical} />
-        <link
-            rel="alternate"
-            type="text/plain"
-            href={agentInstructions}
-            title={`${title} instructions for language models`}
-        />
+        {agentInstructions && (
+            <link
+                rel="alternate"
+                type="text/plain"
+                href={agentInstructions}
+                title={`${title} instructions for language models`}
+            />
+        )}
         <link rel="icon" href={faviconUrl} type="image/svg+xml" />
         <title>{title}</title>
     </head>
@@ -67,7 +74,9 @@ const unfurl = new URL(unfurlImage.src, Astro.site).href;
 
             <slot />
 
-            <SiteFooter sourceUrl={sourceUrl} agentInstructionsUrl={agentInstructionsUrl} />
+            {agentInstructionsUrl && (
+                <SiteFooter sourceUrl={sourceUrl} agentInstructionsUrl={agentInstructionsUrl} />
+            )}
         </div>
     </body>
 </html>

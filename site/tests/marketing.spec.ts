@@ -29,7 +29,7 @@ test('the running illustration hands the resource to the next agent', async ({ p
 
 test('the landing page stays within a mobile viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of ['/', '/stringproof/', '/playbook/']) {
+  for (const route of ['/', '/stringproof/', '/playbook/', '/knowledge/']) {
     await page.goto(route);
 
     const widths = await page.evaluate(() => ({
@@ -53,6 +53,36 @@ test('the desktop navigation does not wrap before yielding to mobile', async ({ 
   await page.setViewportSize({ width: 800, height: 700 });
   await expect(page.locator('.desktop-navigation')).toBeHidden();
   await expect(page.locator('.mobile-navigation')).toBeVisible();
+});
+
+test('the header opens Knowledge without advertising access', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.desktop-navigation a')).toHaveText([
+    'Playbook',
+    'Stringproof',
+    'Knowledge',
+    'Workcell',
+  ]);
+  await expect(page.getByRole('link', { name: 'Workcell', exact: true }).first()).toHaveClass(
+    /is-primary/,
+  );
+  await expect(page.getByRole('link', { name: 'Knowledge', exact: true }).first()).toHaveClass(
+    /is-secondary/,
+  );
+  await page.getByRole('link', { name: 'Knowledge' }).first().click();
+
+  await expect(page).toHaveURL(/\/knowledge\/$/);
+  await expect(page.locator('main h1')).toHaveText('Knowledge');
+  await expect(page.getByRole('link', { name: 'Knowledge', exact: true }).first()).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(page.getByRole('link', { name: 'View on GitHub' })).toHaveAttribute(
+    'href',
+    'https://github.com/jmonster/workcell/tree/main/knowledge',
+  );
+  await expect(page.locator('head link[rel="alternate"][type="text/plain"]')).toHaveCount(0);
+  await expect(page.getByRole('contentinfo')).toHaveCount(0);
 });
 
 test('the header opens Playbook and links to its source folder', async ({ page }) => {
