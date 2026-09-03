@@ -41,6 +41,8 @@ const commandOptions = [
 
   <p>Workcell gives each resource a first-in, first-out queue. One command owns it. Callers using <code>--wait</code> line up in order; callers without it receive a busy result immediately. When the owner exits, the next waiting command starts automatically. Jobs for other resources keep moving.</p>
 
+  <p>Use it only for a named resource that concurrent commands can corrupt, reset, replace, or validate against the wrong state. A project wrapper should own the keys. Workcell rejects same-key recursion and inverted nested acquisition instead of waiting forever.</p>
+
   <div class="wide-demo" id="workcell">
     <LiveQueue id="workcell-live-queue" />
   </div>
@@ -53,9 +55,9 @@ const commandOptions = [
 
   <pre><code>install https://workcell-137.pages.dev{agentInstructionsUrl}</code></pre>
 
-  <p>then put Workcell in front of every command that needs <strong>the</strong> resource:</p>
+  <p>Prefer the project wrapper. For direct use with an established resource key:</p>
 
-  <pre><code>workcell run macos-xcode --wait -- xcodebuild test</code></pre>
+  <pre><code>workcell run macos-xcode --wait --json -- xcodebuild test</code></pre>
 
   <CommandOptions items={commandOptions} />
 </ProductPost>

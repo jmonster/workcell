@@ -7,9 +7,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 )
+
+const heldResourceEnvironment = "WORKCELL_HELD_RESOURCE"
 
 type runContext struct {
 	cwd        string
@@ -20,6 +23,9 @@ type runContext struct {
 }
 
 func run(opts runOptions, stdout, stderr io.Writer) int {
+	if err := validateNestedAcquisition(opts.Resource); err != nil {
+		return writeError(stderr, err)
+	}
 	sessionID, err := resolveSession(opts.Session)
 	if err != nil {
 		return writeError(stderr, err)
@@ -170,7 +176,7 @@ func runAcquired(opts runOptions, sessionID string, waited time.Duration, contex
 	}
 	command := exec.Command(opts.Command[0], opts.Command[1:]...)
 	command.Dir = context.cwd
-	command.Env = os.Environ()
+	command.Env = environmentWithHeldResource(os.Environ(), opts.Resource)
 	command.Stdin = os.Stdin
 	command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	command.ExtraFiles = []*os.File{lock.file}
@@ -249,6 +255,31 @@ func runAcquired(opts runOptions, sessionID string, waited time.Duration, contex
 		writeHumanReleased(stderr, opts.Resource, exitCode, ran.Seconds(), estimate)
 	}
 	return exitCode
+}
+
+func validateNestedAcquisition(resource string) error {
+	held := os.Getenv(heldResourceEnvironment)
+	if held == "" {
+		return nil
+	}
+	if err := validateField("held resource", held); err != nil {
+		return fmt.Errorf("%s: %w", heldResourceEnvironment, err)
+	}
+	if strings.Compare(resource, held) <= 0 {
+		return fmt.Errorf("refusing nested acquisition of %q while holding %q; acquire distinct resources once in bytewise order", resource, held)
+	}
+	return nil
+}
+
+func environmentWithHeldResource(environment []string, resource string) []string {
+	prefix := heldResourceEnvironment + "="
+	result := make([]string, 0, len(environment)+1)
+	for _, entry := range environment {
+		if !strings.HasPrefix(entry, prefix) {
+			result = append(result, entry)
+		}
+	}
+	return append(result, prefix+resource)
 }
 
 func waitArgv(opts runOptions, sessionID string) []string {

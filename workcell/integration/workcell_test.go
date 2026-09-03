@@ -130,6 +130,44 @@ func TestWaitAcquiresAfterOwnerExits(t *testing.T) {
 	}
 }
 
+func TestNestedAcquisitionRequiresIncreasingResourceOrder(t *testing.T) {
+	for _, test := range []struct {
+		name     string
+		outer    string
+		inner    string
+		wantExit int
+	}{
+		{name: "same resource", outer: "shared", inner: "shared", wantExit: 70},
+		{name: "inverted order", outer: "z-resource", inner: "a-resource", wantExit: 70},
+		{name: "increasing order", outer: "a-resource", inner: "z-resource", wantExit: 0},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			stdout, stderr, err := run(t.TempDir(),
+				"run", test.outer, "--session", "outer", "--json", "--",
+				workcellBinary, "run", test.inner, "--wait", "--session", "inner", "--json", "--", "/usr/bin/true",
+			)
+			if exitCode(err) != test.wantExit || stderr != "" {
+				t.Fatalf("exit = %d, want %d; stdout=%s stderr=%s", exitCode(err), test.wantExit, stdout, stderr)
+			}
+			var completed result
+			decodeOne(t, stdout, &completed)
+			if completed.Decision != "completed" || completed.ExitCode != test.wantExit {
+				t.Fatalf("unexpected outer result: %+v", completed)
+			}
+			if test.wantExit == 0 {
+				return
+			}
+			logData, readErr := os.ReadFile(completed.LogPath)
+			if readErr != nil {
+				t.Fatal(readErr)
+			}
+			if !bytes.Contains(logData, []byte("refusing nested acquisition")) {
+				t.Fatalf("nested refusal missing from log: %s", logData)
+			}
+		})
+	}
+}
+
 func TestMain(tests *testing.M) {
 	if injectedBinary := os.Getenv("WORKCELL_INTEGRATION_BINARY"); injectedBinary != "" {
 		absolute, err := filepath.Abs(injectedBinary)

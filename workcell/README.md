@@ -40,39 +40,11 @@ workcell status <resource> [--json]
 
 ## Agent contract
 
-A busy JSON result looks like this:
+Use Workcell only for a project’s named, host-local resource. Prefer the checked-in wrapper that owns its keys; do not invent one or add an outer reservation around a command that already reserves itself.
 
-```json
-{
-  "schema_version": 1,
-  "resource": "macos-xcode",
-  "decision": "busy",
-  "owner": {
-    "reservation_id": "01K...",
-    "session": "agent-a",
-    "actor": "agent",
-    "host": "build-mac",
-    "pid": 7312,
-    "repository": "workcell",
-    "branch": "main",
-    "cwd": "/src/workcell",
-    "command": "xcodebuild test",
-    "started_at": "2026-08-03T14:18:40Z",
-    "elapsed_seconds": 12.418,
-    "log_path": "/Users/runner/.local/state/workcell/logs/01K....log"
-  },
-  "queue_ahead": 0,
-  "next_action": {
-    "kind": "wait_or_continue",
-    "wait_argv": [
-      "/usr/local/bin/workcell", "run", "macos-xcode", "--wait",
-      "--session", "agent-b", "--json", "--", "xcodebuild", "test"
-    ]
-  }
-}
-```
+When a JSON run is busy, execute `next_action.wait_argv` unchanged only if the result is still needed, or continue unrelated work. Do not poll, bypass the queue, or terminate the owner. Multi-resource wrappers must acquire each key once in bytewise order; Workcell rejects same-key recursion and order inversion.
 
-The agent can execute `wait_argv` unchanged, inspect the owner's log when relevant, or continue unrelated work. Completed results include the reservation, timings, log path, and wrapped command exit code.
+Completed results include the reservation, timings, log path, and wrapped exit code.
 
 State is stored under `~/.local/state/workcell`. Set `WORKCELL_STATE_DIR` to override it.
 
@@ -82,7 +54,7 @@ Workcell coordinates cooperative callers on one host. It is not authorization, p
 
 Workcell grew out of Pixel Brite, where parallel agents competed for a Mac and its simulators, an RTX 4090, and memory-constrained build hosts. A homegrown lease spread across several scripts worked well enough that I used coding agents to turn the pattern into Workcell.
 
-The tradeoff is cooperation: agents must follow a few lines in `AGENTS.md`. Those instructions can be lost during context compaction or ignored, but the protocol has been reliable enough for my normal workflow.
+The tradeoff is cooperation: every caller must use the same host, state root, and resource key.
 
 ## Development
 

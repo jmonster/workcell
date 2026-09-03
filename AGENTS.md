@@ -1,17 +1,6 @@
-## Shared capability protocol
+# Workcell
 
-Commands using a scarce, physical, licensed, or stateful capability must run through Workcell.
-
-Examples include macOS build hosts, physical devices, GPUs, hardware rigs, FPGA labs, and limited license seats.
-
-Resource keys are canonical project vocabulary. Use the key already assigned to a capability; do not invent an alias for it.
-
-Before running such a command:
-
-1. Invoke `workcell run <resource> --json -- <command...>`.
-2. If the decision is `busy`, do not bypass Workcell or terminate the owner.
-3. Use the returned `wait_argv` when waiting is appropriate. Otherwise continue work that does not require that capability.
-4. Inspect another session's log only when it is relevant to coordination.
-5. In the completion report, include the resource, session, reservation ID, exit code, and log path.
-
-Workcell coordinates cooperative agents on one host; it does not provide preemption or distributed locking.
+- Use Workcell only for a named resource that concurrent commands can corrupt, reset, replace, or validate against the wrong state. Ordinary builds, tests, files, and network access do not qualify by themselves.
+- Prefer the checked-in command that owns the resource key. Never invent a key or wrap a command that already reserves its resources.
+- A multi-resource wrapper must acquire each key once in bytewise order. Workcell rejects same-key recursion and order inversion.
+- If a resource is busy, wait only when that result is still needed; otherwise do unrelated work. Do not poll, bypass the queue, or terminate its owner.

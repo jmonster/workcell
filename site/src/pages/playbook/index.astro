@@ -4,7 +4,7 @@ import PlaybookExample from '../../components/PlaybookExample.astro';
 import ProductPost from '../../components/ProductPost.astro';
 
 const title = 'Playbook';
-const description = 'A skill for turning repeated agent work into reusable commands, skills, and rules.';
+const description = 'A skill for finding the smallest durable owner for proven agent work—and removing codification that no longer owns it.';
 const sourceUrl = 'https://github.com/jmonster/workcell/tree/main/playbook';
 const agentInstructionsUrl = '/playbook/llms.txt';
 ---
@@ -22,7 +22,7 @@ const agentInstructionsUrl = '/playbook/llms.txt';
 
   <p class="drop-cap">A coding agent can rediscover the same release, recovery, or diagnostic procedure from one task to the next. The commands and decisions live in a transcript, so the next run starts from scratch.</p>
 
-  <p>Playbook tells the agent where that knowledge should live. It starts by checking the repository’s existing commands and instructions. If one already owns the job, the agent extends it. Otherwise, the work may become a script, skill, integration, or project rule. A safe one-off adds nothing to the repository.</p>
+  <p>Playbook starts by finding every command, skill, and instruction that claims to own the work. It reuses an authority when its contract is right, repairs it when incomplete, and removes it when stale or duplicated. New infrastructure is the last option; a safe one-off adds nothing.</p>
 
   <h2 id="example">A concrete case: Stringproof</h2>
 
@@ -44,9 +44,9 @@ const agentInstructionsUrl = '/playbook/llms.txt';
 
   <h2 id="acceptance-test">Check it against the task</h2>
 
-  <p>The agent must finish the current task through whatever it creates or changes. Doing the real work tests the result against its inputs, failures, permissions, and repository constraints. If the task still depends on remembering the old sequence, the work was not codified.</p>
+  <p>The agent must finish the current task through the authority it leaves behind. Doing the real work tests a reused, repaired, or new interface against its inputs and failures. If the task still depends on remembering the old sequence or a removed rule, the work was not captured.</p>
 
-  <p>Playbook handles this decision only. It uses commands for deterministic work and skills for recurring judgment and routing. It rejects a new wrapper when Make, a package task, or the repository’s CLI already owns the job.</p>
+  <p>Playbook handles this decision only. It uses commands for deterministic work and skills for recurring judgment. It rejects parallel wrappers and removes authorities that no longer match the workflow.</p>
 
   <h2 id="install">Install</h2>
 
